@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Barbería Premium - Tu Mejor Versión</title>
+    <link rel="stylesheet" href="style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet" />
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+      <div class="nav-container">
+        <div class="nav-links">
+          <a href="#servicios" class="nav-link">Servicios</a>
+          <a href="#galeria" class="nav-link">Galería</a>
+        </div>
+        <div class="nav-logo">
+          <div class="logo-circle">
+            <i class="fas fa-cut"></i>
+          </div>
+        </div>
+        <div class="nav-cta">
+          <button class="btn-reservar" onclick="scrollToReservar()">
+            Reservar Turno +
+          </button>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+      <div class="hero-panel">
+        <div
+          class="hero-content"
+          data-aos="fade-right"
+          data-aos-duration="1000"
+        >
+          <h1 class="hero-title">
+            <span class="text-white">TU MEJOR VERSION</span>
+            <span class="text-gold">EMPIEZA EN LA SILLA</span>
+          </h1>
+          <p class="hero-subtitle">
+            Cortes modernos, barbas prolijas y atención profesional. Reservá tu
+            turno en segundos.
+          </p>
+          <button class="btn-hero" onclick="scrollToReservar()">
+            Reservar Ahora
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+      <div class="scroll-indicator" data-aos="fade-up" data-aos-delay="500">
+        <i class="fas fa-chevron-down"></i>
+      </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="servicios">
+      <div class="container">
+        <div class="section-header" data-aos="fade-up">
+          <span class="section-label">NUESTROS SERVICIOS</span>
+          <h2 class="section-title">Lo que hacemos mejor</h2>
+        </div>
+        <div class="services-grid">
+          <div class="service-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="service-icon">
+              <i class="fas fa-cut"></i>
+            </div>
+            <h3 class="service-title">Corte Premium</h3>
+            <p class="service-description">
+              Corte clásico o moderno con asesoramiento personalizado según tu
+              estilo y tipo de cabello.
+            </p>
+            <div class="service-price">Desde $8.000</div>
+            <button class="btn-service" onclick="openWhatsApp()">
+              Reservar
+            </button>
+          </div>
+          <div class="service-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="service-icon">
+              <i class="fas fa-user-tie"></i>
+            </div>
+            <h3 class="service-title">Barba Profesional</h3>
+            <p class="service-description">
+              Perfilado, afeitado premium con navaja y toalla caliente para un
+              acabado impecable.
+            </p>
+            <div class="service-price">Desde $6.000</div>
+            <button class="btn-service" onclick="openWhatsApp()">
+              Reservar
+            </button>
+          </div>
+          <div class="service-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="service-icon">
+              <i class="fas fa-gem"></i>
+            </div>
+            <h3 class="service-title">Combo Completo</h3>
+            <p class="service-description">
+              Corte + barba, nuestro servicio más elegido. La experiencia
+              completa de barbería.
+            </p>
+            <div class="service-price">Desde $12.000</div>
+            <button class="btn-service" onclick="openWhatsApp()">
+              Reservar
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Gallery Section -->
+    <section class="gallery" id="galeria">
+      <div class="container">
+        <div class="section-header" data-aos="fade-up">
+          <h2 class="section-title dark">Nuestro Trabajo</h2>
+          <p class="section-subtitle">Cada corte es una obra de arte</p>
+        </div>
+        <div class="gallery-grid">
+          <div class="gallery-item" data-aos="fade-up" data-aos-delay="100">
+            <img
+              src="assets/img-1.png"
+              alt="Perfil con fade y barba"
+              class="gallery-image"
+            />
+          </div>
+          <div class="gallery-item" data-aos="fade-up" data-aos-delay="150">
+            <img
+              src="assets/img-2.png"
+              alt="Arreglo de barba"
+              class="gallery-image"
+              onerror="this.src = 'assets/img-1.png'"
+            />
+          </div>
+          <div class="gallery-item" data-aos="fade-up" data-aos-delay="200">
+            <img
+              src="assets/img-3.png"
+              alt="Interior de la barbería"
+              class="gallery-image"
+              onerror="this.src = 'assets/img-1.png'"
+            />
+          </div>
+          <div class="gallery-item" data-aos="fade-up" data-aos-delay="250">
+            <img
+              src="assets/img-4.png"
+              alt="Corte con volumen y fade"
+              class="gallery-image"
+              onerror="this.src = 'assets/img-1.png'"
+            />
+          </div>
+          <div class="gallery-item" data-aos="fade-up" data-aos-delay="300">
+            <img
+              src="assets/img-5.png"
+              alt="Perfil con fade"
+              class="gallery-image"
+              onerror="this.src = 'assets/img-1.png'"
+            />
+          </div>
+          <div
+            class="gallery-item gallery-item--tall"
+            data-aos="fade-up"
+            data-aos-delay="350"
+          >
+            <img
+              src="assets/img-6.png"
+              alt="Interior de la barbería"
+              class="gallery-image"
+              onerror="this.src = 'assets/img-1.png'"
+            />
+          </div>
+          <div class="gallery-item" data-aos="fade-up" data-aos-delay="400">
+            <img
+              src="assets/img-7.png"
+              alt="Manos del barbero cortando"
+              class="gallery-image"
+              onerror="this.src = 'assets/img-1.png'"
+            />
+          </div>
+          <div class="gallery-item" data-aos="fade-up" data-aos-delay="450">
+            <img
+              src="assets/img-8.png"
+              alt="Retrato con corte y barba"
+              class="gallery-image"
+              onerror="this.src = 'assets/img-1.png'"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials">
+      <div class="container">
+        <div class="section-header" data-aos="fade-up">
+          <h2 class="section-title">Lo que dicen nuestros clientes</h2>
+          <div class="stars-rating">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+          </div>
+        </div>
+        <div
+          class="testimonial-container"
+          data-aos="fade-up"
+          data-aos-delay="200"
+        >
+          <div class="testimonial-slider">
+            <div class="testimonial-card active">
+              <p class="testimonial-text">
+                "Siempre salgo contento de acá. Me escuchan, me asesoran y el
+                resultado es impecable. La mejor barbería de la zona sin dudas."
+              </p>
+              <div class="testimonial-author">
+                <div class="author-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="author-info">
+                  <h4 class="author-name">Lucas Fernández</h4>
+                  <div class="stars-rating small">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="testimonial-card">
+              <p class="testimonial-text">
+                "Excelente atención y profesionalismo. El ambiente es increíble
+                y siempre salgo con el corte perfecto. 100% recomendado."
+              </p>
+              <div class="testimonial-author">
+                <div class="author-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="author-info">
+                  <h4 class="author-name">Martín Rodríguez</h4>
+                  <div class="stars-rating small">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="testimonial-card">
+              <p class="testimonial-text">
+                "La mejor experiencia de barbería que he tenido. Profesionales
+                de primera, productos premium y un servicio excepcional."
+              </p>
+              <div class="testimonial-author">
+                <div class="author-avatar">
+                  <i class="fas fa-user"></i>
+                </div>
+                <div class="author-info">
+                  <h4 class="author-name">Diego Martínez</h4>
+                  <div class="stars-rating small">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="testimonial-controls">
+            <button
+              class="testimonial-arrow prev"
+              onclick="changeTestimonial(-1)"
+            >
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            <button
+              class="testimonial-arrow next"
+              onclick="changeTestimonial(1)"
+            >
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
+          <div class="testimonial-dots">
+            <span class="dot active" onclick="currentTestimonial(0)"></span>
+            <span class="dot" onclick="currentTestimonial(1)"></span>
+            <span class="dot" onclick="currentTestimonial(2)"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features">
+      <div class="container">
+        <div class="section-header" data-aos="fade-up">
+          <h2 class="section-title dark">Por qué somos tu mejor elección</h2>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="100">
+            <div class="feature-icon">
+              <i class="fas fa-cut"></i>
+            </div>
+            <h3 class="feature-title">Barberos Profesionales</h3>
+            <p class="feature-description">
+              Equipo capacitado con años de experiencia en cortes modernos y
+              clásicos.
+            </p>
+          </div>
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="200">
+            <div class="feature-icon">
+              <i class="fas fa-clock"></i>
+            </div>
+            <h3 class="feature-title">Turnos sin Espera</h3>
+            <p class="feature-description">
+              Sistema de reservas eficiente. Llegás y te atendemos en tu
+              horario.
+            </p>
+          </div>
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="300">
+            <div class="feature-icon">
+              <i class="fas fa-star"></i>
+            </div>
+            <h3 class="feature-title">Productos Premium</h3>
+            <p class="feature-description">
+              Usamos las mejores marcas del mercado para resultados superiores.
+            </p>
+          </div>
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="400">
+            <div class="feature-icon">
+              <i class="fas fa-user"></i>
+            </div>
+            <h3 class="feature-title">Atención Personalizada</h3>
+            <p class="feature-description">
+              Escuchamos tus necesidades y te asesoramos según tu estilo.
+            </p>
+          </div>
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="500">
+            <div class="feature-icon">
+              <i class="fas fa-home"></i>
+            </div>
+            <h3 class="feature-title">Ambiente Cómodo</h3>
+            <p class="feature-description">
+              Espacio moderno, limpio y relajado para una experiencia única.
+            </p>
+          </div>
+          <div class="feature-card" data-aos="fade-up" data-aos-delay="600">
+            <div class="feature-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+            <h3 class="feature-title">Garantía de Calidad</h3>
+            <p class="feature-description">
+              Si no quedas conforme, volvés y lo arreglamos sin cargo.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq" id="faq">
+      <div class="container">
+        <div class="section-header" data-aos="fade-up">
+          <h2 class="section-title dark">Preguntas Frecuentes</h2>
+          <p class="section-subtitle">Resolvemos tus dudas</p>
+        </div>
+        <div class="faq-grid">
+          <div class="faq-item" data-aos="fade-up" data-aos-delay="100">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>¿Necesito reservar turno con anticipación?</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                No es obligatorio, pero recomendamos reservar 24 horas antes
+                para garantizar tu horario. Puedes hacerlo por WhatsApp de forma
+                rápida y sencilla.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item" data-aos="fade-up" data-aos-delay="150">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>¿Cuál es el horario de atención?</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Lunes a Viernes: 9:00 - 20:00 | Sábados: 9:00 - 18:00 |
+                Domingos: Cerrado
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item" data-aos="fade-up" data-aos-delay="200">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>¿Cuánto tiempo tarda un corte?</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Un corte premium tarda entre 30 a 40 minutos. La barba
+                profesional entre 20 a 30 minutos. El combo completo
+                aproximadamente 60 minutos.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item" data-aos="fade-up" data-aos-delay="250">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>¿Aceptan todos los métodos de pago?</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Sí, aceptamos efectivo, tarjetas de débito, tarjetas de crédito
+                y transferencia bancaria. Consulta promociones en tu banco.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item" data-aos="fade-up" data-aos-delay="300">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span>¿Hacen atenciones para niños?</span>
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                Claro que sí. Ofrecemos cortes especiales para niños con un
+                trato amable y paciencia. Consultá precios especiales por
+                WhatsApp.
+              </p>
+            </div>
+          </div>
+
+          <div class="faq-item" data-aos="fade-up" data-aos-delay="350">
+            <button class="faq-question" onclick="toggleFaq(this)">
+              <span
+                >¿Cuál es la diferencia entre un corte clásico y moderno?</span
+              >
+              <i class="fas fa-chevron-down"></i>
+            </button>
+            <div class="faq-answer">
+              <p>
+                El corte clásico mantiene proporciones tradicionales. El moderno
+                incluye técnicas actuales como fades, degradados y diseños más
+                creativos. Nuestros barberos te aconsejarán según tu tipo de
+                cabello.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Visit Section -->
+    <section class="visit" id="reservar">
+      <div class="container">
+        <div class="visit-content">
+          <div class="visit-map" data-aos="fade-right">
+            <iframe
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3284.0167125041007!2d-58.3815704!3d-34.6037389!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x95bccacf425e85d1%3A0x5c5c5c5c5c5c5c5c!2sObelisco!5e0!3m2!1ses-419!2sar!4v1234567890123!5m2!1ses-419!2sar"
+              width="100%"
+              height="400"
+              style="border: 0; border-radius: 10px"
+              allowfullscreen=""
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+              class="map-iframe"
+            >
+            </iframe>
+          </div>
+          <div class="visit-info" data-aos="fade-left">
+            <h2 class="visit-title">Visitanos</h2>
+            <div class="contact-info">
+              <div class="contact-item">
+                <i class="fas fa-map-marker-alt"></i>
+                <div>
+                  <h4>Dirección</h4>
+                  <p>
+                    Av. Corrientes 1234, Ciudad Autónoma de Buenos Aires,
+                    Argentina.
+                  </p>
+                </div>
+              </div>
+              <div class="contact-item">
+                <i class="fas fa-clock"></i>
+                <div>
+                  <h4>Horarios</h4>
+                  <p>
+                    Lunes a Viernes: 9:00 - 20:00<br />
+                    Sábados: 9:00 - 18:00<br />
+                    Domingos: Cerrado
+                  </p>
+                </div>
+              </div>
+              <div class="contact-item">
+                <i class="fas fa-phone"></i>
+                <div>
+                  <h4>Teléfono</h4>
+                  <p>+54 9 11 1234-5678</p>
+                </div>
+              </div>
+            </div>
+            <button class="btn-whatsapp" onclick="openWhatsApp()">
+              <i class="fab fa-whatsapp"></i>
+              RESERVAR POR WHATSAPP
+            </button>
+            <div class="social-links">
+              <a href="#" class="social-icon" aria-label="Instagram">
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a href="#" class="social-icon" aria-label="Facebook">
+                <i class="fab fa-facebook"></i>
+              </a>
+              <a href="#" class="social-icon" aria-label="TikTok">
+                <i class="fab fa-tiktok"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-logo">
+            <div class="logo-circle">
+              <i class="fas fa-cut"></i>
+            </div>
+            <p>© 2026 Todos los derechos reservados</p>
+          </div>
+          <div class="footer-social">
+            <a href="#" class="social-icon" aria-label="Instagram">
+              <i class="fab fa-instagram"></i>
+            </a>
+            <a href="#" class="social-icon" aria-label="Facebook">
+              <i class="fab fa-facebook"></i>
+            </a>
+            <a href="#" class="social-icon" aria-label="TikTok">
+              <i class="fab fa-tiktok"></i>
+            </a>
+          </div>
+          <button class="btn-contact" onclick="scrollToReservar()">
+            Contactar
+          </button>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Floating WhatsApp Button -->
+    <div class="whatsapp-float" onclick="openWhatsApp()">
+      <i class="fab fa-whatsapp"></i>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

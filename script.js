@@ -1,3 +1,25 @@
+// ===== MOBILE MENU TOGGLE =====
+function toggleMenu() {
+  const hamburger = document.getElementById("hamburger");
+  const navLinks = document.getElementById("nav-links");
+
+  hamburger.classList.toggle("active");
+  navLinks.classList.toggle("active");
+}
+
+// Close menu when a link is clicked
+document.addEventListener("DOMContentLoaded", function () {
+  const navLinks = document.querySelectorAll(".nav-link");
+  navLinks.forEach((link) => {
+    link.addEventListener("click", function () {
+      const hamburger = document.getElementById("hamburger");
+      const navLinksContainer = document.getElementById("nav-links");
+      hamburger.classList.remove("active");
+      navLinksContainer.classList.remove("active");
+    });
+  });
+});
+
 // Initialize AOS (Animate On Scroll)
 AOS.init({
   duration: 1000,

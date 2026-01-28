@@ -126,14 +126,28 @@ window.addEventListener("scroll", function () {
 });
 
 // ===== SCROLL PROGRESS BAR =====
-window.addEventListener("scroll", function () {
+function updateScrollProgress() {
   const scrollProgressBar = document.querySelector(".scroll-progress-bar");
   if (scrollProgressBar) {
-    const windowHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const scrolled = (window.pageYOffset / windowHeight) * 100;
-    scrollProgressBar.style.width = scrolled + "%";
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+    // Calculate percentage, ensuring it's between 0 and 100
+    let scrollPercent = 0;
+    if (docHeight > 0) {
+      scrollPercent = (scrollTop / docHeight) * 100;
+      scrollPercent = Math.min(100, Math.max(0, scrollPercent));
+    }
+
+    scrollProgressBar.style.width = scrollPercent + "%";
   }
-});
+}
+
+// Initialize on load
+document.addEventListener("DOMContentLoaded", updateScrollProgress);
+
+// Update on scroll
+window.addEventListener("scroll", updateScrollProgress);
 
 // ===== SMOOTH SCROLL FUNCTIONS =====
 function scrollToReservar() {
@@ -597,29 +611,7 @@ shakeAnimation.textContent = `
 `;
 document.head.appendChild(shakeAnimation);
 
-// ===== ACCESSIBILITY ENHANCEMENTS =====
-// Add skip to main content link
-const skipLink = document.createElement("a");
-skipLink.href = "#servicios";
-skipLink.textContent = "Saltar al contenido principal";
-skipLink.className = "skip-link";
-skipLink.style.cssText = `
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: #d4af37;
-  color: #0a0a0a;
-  padding: 8px;
-  text-decoration: none;
-  z-index: 10000;
-  font-weight: 600;
-`;
-skipLink.addEventListener("focus", function () {
-  this.style.top = "0";
-});
-skipLink.addEventListener("blur", function () {
-  this.style.top = "-40px";
-});
-document.body.insertBefore(skipLink, document.body.firstChild);
+// ===== ACCESSIBILITY ENHANCEMENTS REMOVED =====
+// Removed skip-to-main-content link as requested.
 
 console.log("🎨 All scripts initialized successfully!");

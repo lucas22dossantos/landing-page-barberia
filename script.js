@@ -383,14 +383,8 @@ rippleStyle.textContent = `
 `;
 document.head.appendChild(rippleStyle);
 
-// ===== PARALLAX EFFECT ON HERO =====
-window.addEventListener("scroll", function () {
-  const scrolled = window.pageYOffset;
-  const hero = document.querySelector(".hero");
-  if (hero && scrolled < window.innerHeight) {
-    hero.style.backgroundPositionY = scrolled * 0.5 + "px";
-  }
-});
+// ===== PARALLAX EFFECT REMOVED =====
+// Parallax effect removed for better user experience
 
 // ===== LAZY LOADING FOR IMAGES =====
 if ("IntersectionObserver" in window) {

@@ -30,7 +30,7 @@
             <div class="logo-circle">
               <i class="fas fa-cut"></i>
             </div>
-            <span class="logo-text">BARBER<span class="gold">SHOP</span></span>
+            <span class="logo-text">BARBERÍA</span>
           </div>
         </div>
         
@@ -82,8 +82,8 @@
       
       <div class="hero-content-wrapper">
         <div class="hero-badge" data-aos="fade-down" data-aos-delay="200">
-          <i class="fas fa-award"></i>
-          <span>Premio al Mejor Servicio 2025</span>
+          <i class="fas fa-scissors"></i>
+          <span>15 Años de Experiencia</span>
         </div>
 
         <div class="hero-content" data-aos="fade-right" data-aos-duration="1000">
@@ -91,7 +91,7 @@
           <h1 class="hero-title">
             <span class="title-small">Bienvenido a</span>
             <span class="title-main">BARBERÍA</span>
-            <span class="title-accent">PREMIUM</span>
+            <span class="title-accent">CLÁSICA</span>
           </h1>
           <p class="hero-subtitle">
             Donde el estilo se encuentra con la tradición. Más que un corte, 
@@ -370,11 +370,164 @@
               </div>
             </div>
 
-            <button class="btn-hero btn-primary" onclick="scrollToReservar()">
+            <button class="btn-hero btn-primary" onclick="toggleTeam()">
               <span>Conoce Nuestro Equipo</span>
               <i class="fas fa-users"></i>
             </button>
           </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team Section (Hidden by default) -->
+    <section class="team-section" id="team-section">
+      <div class="container">
+        <div class="team-header" data-aos="fade-up">
+          <button class="team-close-btn" onclick="toggleTeam()">
+            <i class="fas fa-times"></i>
+          </button>
+          <span class="section-label">
+            <i class="fas fa-users"></i>
+            NUESTRO EQUIPO
+          </span>
+          <h2 class="section-title">Los Maestros del <span class="highlight">Estilo</span></h2>
+          <p class="section-description">
+            Profesionales certificados con pasión por su arte
+          </p>
+        </div>
+
+        <div class="team-grid">
+          <div class="team-member" data-aos="fade-right" data-aos-delay="100">
+            <div class="member-image-wrapper">
+              <div class="member-image">
+                <img src="https://i.pravatar.cc/300?img=12" alt="Carlos Mendez" />
+                <div class="member-overlay">
+                  <div class="social-icons">
+                    <a href="#" class="social-icon-small"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon-small"><i class="fab fa-facebook"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="member-badge">
+                <i class="fas fa-star"></i>
+                <span>Master</span>
+              </div>
+            </div>
+            <div class="member-info">
+              <h3 class="member-name">Carlos Méndez</h3>
+              <p class="member-role">Barbero Master / Fundador</p>
+              <p class="member-description">
+                15 años de experiencia. Especialista en cortes clásicos y modernos. 
+                Formado en Italia y España.
+              </p>
+              <div class="member-specialties">
+                <span class="specialty-tag">Fades</span>
+                <span class="specialty-tag">Barbas</span>
+                <span class="specialty-tag">Diseños</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-member" data-aos="fade-right" data-aos-delay="200">
+            <div class="member-image-wrapper">
+              <div class="member-image">
+                <img src="https://i.pravatar.cc/300?img=33" alt="Lucas Fernandez" />
+                <div class="member-overlay">
+                  <div class="social-icons">
+                    <a href="#" class="social-icon-small"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon-small"><i class="fab fa-facebook"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="member-badge">
+                <i class="fas fa-award"></i>
+                <span>Senior</span>
+              </div>
+            </div>
+            <div class="member-info">
+              <h3 class="member-name">Lucas Fernández</h3>
+              <p class="member-role">Barbero Senior</p>
+              <p class="member-description">
+                10 años de trayectoria. Experto en técnicas de color y degradados 
+                perfectos. Certificado internacional.
+              </p>
+              <div class="member-specialties">
+                <span class="specialty-tag">Color</span>
+                <span class="specialty-tag">Degradados</span>
+                <span class="specialty-tag">Texturas</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-member" data-aos="fade-left" data-aos-delay="300">
+            <div class="member-image-wrapper">
+              <div class="member-image">
+                <img src="https://i.pravatar.cc/300?img=68" alt="Diego Ramirez" />
+                <div class="member-overlay">
+                  <div class="social-icons">
+                    <a href="#" class="social-icon-small"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon-small"><i class="fab fa-facebook"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="member-badge">
+                <i class="fas fa-certificate"></i>
+                <span>Pro</span>
+              </div>
+            </div>
+            <div class="member-info">
+              <h3 class="member-name">Diego Ramírez</h3>
+              <p class="member-role">Barbero Profesional</p>
+              <p class="member-description">
+                8 años de experiencia. Especialista en estilos urbanos y tendencias. 
+                Mentor de nuevos barberos.
+              </p>
+              <div class="member-specialties">
+                <span class="specialty-tag">Urbano</span>
+                <span class="specialty-tag">Tendencias</span>
+                <span class="specialty-tag">Styling</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="team-member" data-aos="fade-left" data-aos-delay="400">
+            <div class="member-image-wrapper">
+              <div class="member-image">
+                <img src="https://i.pravatar.cc/300?img=51" alt="Martin Torres" />
+                <div class="member-overlay">
+                  <div class="social-icons">
+                    <a href="#" class="social-icon-small"><i class="fab fa-instagram"></i></a>
+                    <a href="#" class="social-icon-small"><i class="fab fa-facebook"></i></a>
+                  </div>
+                </div>
+              </div>
+              <div class="member-badge">
+                <i class="fas fa-scissors"></i>
+                <span>Pro</span>
+              </div>
+            </div>
+            <div class="member-info">
+              <h3 class="member-name">Martín Torres</h3>
+              <p class="member-role">Barbero Profesional</p>
+              <p class="member-description">
+                6 años perfeccionando su arte. Especialista en barba premium 
+                y afeitado tradicional con navaja.
+              </p>
+              <div class="member-specialties">
+                <span class="specialty-tag">Barba</span>
+                <span class="specialty-tag">Navaja</span>
+                <span class="specialty-tag">Clásico</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="team-cta" data-aos="fade-up">
+          <p>¿Querés reservar con un barbero específico?</p>
+          <button class="btn-hero btn-secondary" onclick="openWhatsApp()">
+            <span>Contactanos por WhatsApp</span>
+            <i class="fab fa-whatsapp"></i>
+          </button>
         </div>
       </div>
     </section>
@@ -474,11 +627,18 @@
         </div>
 
         <div class="gallery-cta" data-aos="fade-up">
-          <p>¿Quieres ver más de nuestro trabajo?</p>
-          <button class="btn-hero btn-secondary">
-            <span>Síguenos en Instagram</span>
+          <div class="cta-content">
+            <h3 class="cta-title">¿Querés ver más de nuestro trabajo?</h3>
+            <p class="cta-description">Seguinos en Instagram para inspirarte con más transformaciones, estilos y contenido exclusivo.</p>
+          </div>
+          <a href="https://instagram.com/barberiapremium" target="_blank" rel="noopener" class="btn-instagram">
             <i class="fab fa-instagram"></i>
-          </button>
+            <div class="btn-instagram-text">
+              <span class="btn-label">Seguinos en</span>
+              <span class="btn-title">Instagram</span>
+            </div>
+            <i class="fas fa-arrow-right btn-arrow"></i>
+          </a>
         </div>
       </div>
     </section>
@@ -800,7 +960,7 @@
                 </div>
                 <div class="contact-text">
                   <h4>Email</h4>
-                  <p>info@barberiapremium.com</p>
+                  <p><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1f767179705f7d7e6d7d7a6d767e6f6d7a72766a72317c7072">[email&#160;protected]</a></p>
                 </div>
               </div>
             </div>
@@ -861,7 +1021,7 @@
                 <div class="logo-circle">
                   <i class="fas fa-cut"></i>
                 </div>
-                <span class="logo-text">BARBER<span class="gold">SHOP</span></span>
+                <span class="logo-text">BARBERÍA</span>
               </div>
               <p class="footer-description">
                 Más que una barbería, una experiencia que transforma tu estilo 

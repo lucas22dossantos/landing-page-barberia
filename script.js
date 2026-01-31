@@ -189,7 +189,9 @@ function initCounters() {
 }
 
 function animateCounter(element) {
-  const target = parseInt(element.getAttribute("data-target"));
+  const targetStr = element.getAttribute("data-target");
+  const isDecimal = element.getAttribute("data-decimal") === "true";
+  const target = parseFloat(targetStr);
   const duration = 2000;
   const increment = target / (duration / 16);
   let current = 0;
@@ -197,10 +199,18 @@ function animateCounter(element) {
   const updateCounter = () => {
     current += increment;
     if (current < target) {
-      element.textContent = Math.floor(current);
+      if (isDecimal) {
+        element.textContent = current.toFixed(1);
+      } else {
+        element.textContent = Math.floor(current);
+      }
       requestAnimationFrame(updateCounter);
     } else {
-      element.textContent = target.toLocaleString();
+      if (isDecimal) {
+        element.textContent = target.toFixed(1);
+      } else {
+        element.textContent = target.toLocaleString();
+      }
     }
   };
 
@@ -276,6 +286,108 @@ document.addEventListener("keydown", (e) => {
   }
 });
 
+// ===== TEAM TOGGLE =====
+function toggleTeam() {
+  const teamSection = document.getElementById("team-section");
+  const body = document.body;
+  
+  // Crear o obtener backdrop
+  let backdrop = document.querySelector(".team-backdrop");
+  if (!backdrop) {
+    backdrop = document.createElement("div");
+    backdrop.className = "team-backdrop";
+    backdrop.onclick = toggleTeam; // Cerrar al hacer click en el backdrop
+    document.body.appendChild(backdrop);
+  }
+  
+  if (teamSection.classList.contains("hidden")) {
+    // Mostrar el equipo
+    teamSection.classList.remove("hidden");
+    teamSection.classList.add("showing");
+    backdrop.classList.add("active");
+    body.style.overflow = "hidden";
+    
+    // Hacer que la sección aparezca con z-index alto
+    teamSection.style.position = "relative";
+    teamSection.style.zIndex = "1000";
+    
+    // Hacer scroll suave a la sección después de que empiece la animación
+    setTimeout(() => {
+      teamSection.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 100);
+    
+    // Animar los miembros del equipo uno por uno
+    const teamMembers = teamSection.querySelectorAll(".team-member");
+    teamMembers.forEach((member, index) => {
+      setTimeout(() => {
+        member.style.opacity = "1";
+        member.style.transform = "translateY(0) scale(1)";
+      }, 300 + (index * 100));
+    });
+    
+    // Animar el header
+    const teamHeader = teamSection.querySelector(".team-header");
+    if (teamHeader) {
+      setTimeout(() => {
+        teamHeader.style.opacity = "1";
+        teamHeader.style.transform = "translateY(0)";
+      }, 200);
+    }
+  } else {
+    // Ocultar el equipo
+    teamSection.classList.remove("showing");
+    teamSection.classList.add("hiding");
+    backdrop.classList.remove("active");
+    body.style.overflow = "";
+    
+    // Animar salida de los miembros
+    const teamMembers = teamSection.querySelectorAll(".team-member");
+    teamMembers.forEach((member, index) => {
+      setTimeout(() => {
+        member.style.opacity = "0";
+        member.style.transform = "translateY(30px) scale(0.95)";
+      }, index * 50);
+    });
+    
+    // Animar salida del header
+    const teamHeader = teamSection.querySelector(".team-header");
+    if (teamHeader) {
+      teamHeader.style.opacity = "0";
+      teamHeader.style.transform = "translateY(-20px)";
+    }
+    
+    setTimeout(() => {
+      teamSection.classList.add("hidden");
+      teamSection.classList.remove("hiding");
+      teamSection.style.zIndex = "";
+      
+      // Reset de los miembros
+      teamMembers.forEach((member) => {
+        member.style.opacity = "0";
+        member.style.transform = "translateY(30px)";
+      });
+      
+      if (teamHeader) {
+        teamHeader.style.opacity = "0";
+        teamHeader.style.transform = "translateY(-20px)";
+      }
+    }, 600);
+  }
+}
+
+// Inicializar estilos del header al cargar
+document.addEventListener("DOMContentLoaded", function() {
+  const teamHeader = document.querySelector(".team-header");
+  if (teamHeader) {
+    teamHeader.style.opacity = "0";
+    teamHeader.style.transform = "translateY(-20px)";
+    teamHeader.style.transition = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+  }
+});
+
 // ===== FAQ ACCORDION =====
 function toggleFaq(button) {
   const faqItem = button.parentElement;
@@ -301,6 +413,128 @@ function openWhatsApp() {
   const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
   window.open(whatsappURL, "_blank");
 }
+
+// ===== WHATSAPP MODAL =====
+function openWhatsAppModal() {
+  const modal = document.getElementById("whatsapp-modal");
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeWhatsAppModal() {
+  const modal = document.getElementById("whatsapp-modal");
+  modal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
+function sendWhatsApp(service) {
+  const phoneNumber = "5491112345678";
+  let message = "";
+  
+  if (service === "Consulta General") {
+    message = "¡Hola! Me gustaría hacer una consulta sobre los servicios de la barbería.";
+  } else {
+    message = `¡Hola! Me gustaría reservar un turno para: ${service}`;
+  }
+  
+  const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+  window.open(whatsappURL, "_blank");
+  closeWhatsAppModal();
+}
+
+// Cerrar modal con tecla Escape
+document.addEventListener("keydown", function(e) {
+  if (e.key === "Escape") {
+    closeWhatsAppModal();
+  }
+});
+
+// ===== GALLERY LIGHTBOX =====
+let currentLightboxIndex = 0;
+const galleryImages = [
+  "assets/galeria-img-1.webp",
+  "assets/galeria-img-2.webp",
+  "assets/galeria-img-3.webp",
+  "assets/galeria-img-4.webp",
+  "assets/galeria-img-5.webp",
+  "assets/galeria-img-6.webp",
+  "assets/galeria-img-7.webp",
+  "assets/galeria-img-8.webp"
+];
+
+function openGalleryLightbox(index) {
+  currentLightboxIndex = index;
+  
+  // Crear lightbox si no existe
+  let lightbox = document.getElementById("gallery-lightbox");
+  if (!lightbox) {
+    lightbox = document.createElement("div");
+    lightbox.id = "gallery-lightbox";
+    lightbox.className = "gallery-lightbox";
+    lightbox.innerHTML = `
+      <div class="lightbox-overlay" onclick="closeGalleryLightbox()"></div>
+      <button class="lightbox-close" onclick="closeGalleryLightbox()">
+        <i class="fas fa-times"></i>
+      </button>
+      <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+      <img class="lightbox-image" src="" alt="Gallery image" />
+      <div class="lightbox-counter"></div>
+    `;
+    document.body.appendChild(lightbox);
+  }
+  
+  updateLightboxImage();
+  lightbox.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeGalleryLightbox() {
+  const lightbox = document.getElementById("gallery-lightbox");
+  if (lightbox) {
+    lightbox.classList.remove("active");
+    document.body.style.overflow = "";
+  }
+}
+
+function navigateLightbox(direction) {
+  currentLightboxIndex += direction;
+  
+  if (currentLightboxIndex < 0) {
+    currentLightboxIndex = galleryImages.length - 1;
+  } else if (currentLightboxIndex >= galleryImages.length) {
+    currentLightboxIndex = 0;
+  }
+  
+  updateLightboxImage();
+}
+
+function updateLightboxImage() {
+  const lightbox = document.getElementById("gallery-lightbox");
+  const img = lightbox.querySelector(".lightbox-image");
+  const counter = lightbox.querySelector(".lightbox-counter");
+  
+  img.src = galleryImages[currentLightboxIndex];
+  counter.textContent = `${currentLightboxIndex + 1} / ${galleryImages.length}`;
+}
+
+// Navegación con teclado en lightbox
+document.addEventListener("keydown", function(e) {
+  const lightbox = document.getElementById("gallery-lightbox");
+  if (lightbox && lightbox.classList.contains("active")) {
+    if (e.key === "Escape") {
+      closeGalleryLightbox();
+    } else if (e.key === "ArrowLeft") {
+      navigateLightbox(-1);
+    } else if (e.key === "ArrowRight") {
+      navigateLightbox(1);
+    }
+  }
+});
 
 // ===== SMOOTH SCROLL FOR ALL ANCHOR LINKS =====
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {

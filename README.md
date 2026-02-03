@@ -1,214 +1,85 @@
-# Barbería Premium - Sitio Web Optimizado
+# 💈 Barbería Premium - Sitio Web
 
-## 🚀 Características
+Sitio web profesional y responsive para barbería con diseño elegante y sistema de reservas integrado con WhatsApp.
 
-- ✅ **100% Responsive** - Adaptado para móviles, tablets y desktop
-- ✅ **Performance optimizado** - Carga rápida y animaciones suaves
-- ✅ **SEO friendly** - Estructura semántica y meta tags
-- ✅ **Accesibilidad** - ARIA labels y navegación por teclado
-- ✅ **Touch optimizado** - Gestos swipe y feedback háptico
-- ✅ **Cross-browser** - Compatible con todos los navegadores modernos
+## Descripción
 
-## 📱 Adaptación Móvil
+Sitio web moderno desarrollado para una barbería que combina estética clásica con funcionalidad contemporánea. Diseñado para ofrecer una experiencia premium tanto en desktop como en dispositivos móviles, con animaciones suaves y navegación intuitiva.
 
-### Optimizaciones implementadas:
+## Características
 
-1. **Viewport Heights dinámicos** - Soluciona problemas de altura en iOS
-2. **Touch gestures** - Swipe en testimonios, tap optimizado
-3. **Auto-hide navigation** - El nav se oculta al hacer scroll down en móvil
-4. **Haptic feedback** - Vibraciones sutiles en dispositivos compatibles
-5. **Responsive images** - Lazy loading y tamaños optimizados
-6. **Touch targets** - Áreas táctiles de mínimo 44px
-7. **Orientación adaptativa** - Manejo de cambios de orientación
+- **Diseño responsive** adaptado a todos los dispositivos
+- **Sección Hero** con estadísticas animadas y llamados a la acción
+- **Catálogo de servicios** con precios y descripciones detalladas
+- **Galería fotográfica** para mostrar trabajos realizados
+- **Testimonios de clientes** con carrusel automático
+- **Sistema de reservas** que genera mensajes pre-formateados para WhatsApp
+- **Sección "Nosotros"** para contar la historia de la barbería
+- **Información de contacto** con mapa integrado de Google Maps
+- **Botón flotante de WhatsApp** para contacto rápido
+- **Navegación suave** entre secciones
+- **Animaciones al scroll** para mejorar la experiencia visual
+- **Menú hamburguesa** optimizado para móviles
 
-### Breakpoints:
+## Tecnologías utilizadas
 
-- **Desktop**: > 992px
-- **Tablet**: 768px - 992px
-- **Mobile Large**: 481px - 768px
-- **Mobile**: 360px - 480px
-- **Mobile Small**: < 360px
+- **HTML5** - Estructura semántica
+- **CSS3** - Estilos modernos con CSS Grid y Flexbox
+- **JavaScript (Vanilla)** - Funcionalidad sin dependencias
+- **Font Awesome** - Iconografía
+- **Google Fonts** - Tipografías Cinzel y Cormorant Garamond
+- **Google Maps API** - Mapa de ubicación
 
-## ⚙️ Configuración
+## Estructura
 
-### 1. Cambiar número de WhatsApp
+El sitio está compuesto por las siguientes secciones:
 
-En `script.js`, línea 7:
+1. **Header/Navegación** - Menú sticky con logo y enlaces
+2. **Hero** - Presentación principal con título, subtítulo y estadísticas
+3. **Servicios** - Cards con los diferentes servicios ofrecidos
+4. **Galería** - Grid de imágenes de trabajos realizados
+5. **Nosotros** - Historia y valores de la barbería
+6. **Testimonios** - Reseñas de clientes satisfechos
+7. **Contacto** - Información de ubicación, horarios y formulario de reserva
+8. **Footer** - Links y redes sociales
 
-```javascript
-const CONFIG = {
-  whatsappNumber: '5491123456789', // CAMBIAR POR TU NÚMERO
-  // ...
-};
-```
+## Funcionalidades destacadas
 
-### 2. Personalizar colores
-
-En `style.css`, líneas 6-14:
-
-```css
-:root {
-  --color-primary: #0a0a0a;
-  --color-accent: #d4af37; /* Color dorado - CAMBIAR AQUÍ */
-  --color-accent-light: #e8c55b;
-  /* ... */
-}
-```
-
-### 3. Actualizar información de contacto
-
-En `index.html`, buscar la sección `id="contacto"` y actualizar:
-- Dirección
-- Teléfono
-- Horarios
-- Enlaces de redes sociales
-
-### 4. Cambiar imágenes
-
-Reemplazar las URLs de Unsplash en `index.html`:
-
-```html
-<!-- Hero background -->
-<div class="hero__bg"></div>
-<!-- En style.css, buscar: background: url('...') -->
-
-<!-- Gallery -->
-<img src="TU_IMAGEN_AQUI.jpg" alt="...">
-```
-
-### 5. Modificar servicios
-
-En `index.html`, sección `id="servicios"`:
-- Editar títulos, descripciones y precios
-- Ajustar íconos (Font Awesome classes)
-- Modificar tiempos de duración
-
-## 📂 Estructura de archivos
-
-```
-/
-├── index.html          # Estructura HTML
-├── style.css           # Estilos CSS
-├── script.js           # Funcionalidad JavaScript
-└── README.md           # Este archivo
-```
-
-## 🎨 Tipografía
-
-- **Headings**: Cinzel (serif elegante)
-- **Body**: Cormorant Garamond (serif clásica)
-
-Para cambiar las fuentes, modificar en `index.html` y `style.css`:
-
-```css
---font-heading: 'TuFuente', serif;
---font-body: 'OtraFuente', serif;
-```
-
-## 🔧 Funcionalidades JavaScript
-
-### Navegación
-- Scroll suave a secciones
-- Menu hamburguesa en móvil
-- Auto-hide en scroll (solo móvil)
-- Progress bar
+### Sistema de Reservas
+Modal interactivo que permite seleccionar servicio, fecha y horario. Al enviar, genera automáticamente un mensaje de WhatsApp con todos los datos.
 
 ### Animaciones
-- Fade in elements al hacer scroll
-- Counter animation en estadísticas
-- Smooth transitions
+- Fade-in de elementos al hacer scroll
+- Contador animado en estadísticas
+- Transiciones suaves en hover
+- Progress bar de lectura
 
-### Testimonios
-- Auto-rotate cada 5 segundos
-- Navegación con flechas/dots
-- Swipe en móviles
-- Keyboard navigation (←→)
+### Optimizaciones móviles
+- Menú auto-hide al hacer scroll
+- Touch gestures en carrusel
+- Viewport heights dinámicos
+- Botones con tamaño táctil adecuado
 
-### Reservas
-- Modal interactivo
-- Validación de fechas
-- Integración con WhatsApp
-- Horarios dinámicos según día
+## Diseño
 
-## 🚀 Deployment
+Paleta de colores elegante con tonos oscuros y acentos dorados que transmiten sofisticación y clase. Tipografías serif clásicas que refuerzan la identidad premium de la marca.
 
-### Opción 1: GitHub Pages
-1. Sube los archivos a un repo
-2. Ve a Settings > Pages
-3. Selecciona la rama main
+**Colores principales:**
+- Negro profundo (#0a0a0a)
+- Dorado (#d4af37)
+- Blanco/Crema (#f8f5f0)
 
-### Opción 2: Netlify/Vercel
-1. Conecta tu repo
-2. Deploy automático
+**Tipografías:**
+- Cinzel - Títulos y encabezados
+- Cormorant Garamond - Textos y párrafos
 
-### Opción 3: Hosting tradicional
-1. Sube via FTP
-2. Asegúrate que index.html esté en la raíz
+## Compatibilidad
 
-## 📊 Performance Tips
-
-1. **Optimiza imágenes**:
-   - Usa WebP cuando sea posible
-   - Comprime con TinyPNG o similar
-   - Usa dimensiones apropiadas
-
-2. **Carga asíncrona**:
-   - Las fuentes ya están optimizadas
-   - Considera agregar un Service Worker
-
-3. **Caché**:
-   - Configura headers de caché en el servidor
-   - Versiona tus archivos CSS/JS
-
-## 🐛 Troubleshooting
-
-### El menú móvil no funciona
-- Verificar que el JavaScript esté cargando
-- Revisar la consola del navegador
-
-### Las animaciones no se ven suaves
-- Verificar que el navegador soporte IntersectionObserver
-- Considerar reducir animaciones en dispositivos antiguos
-
-### Problemas con WhatsApp
-- Verificar el formato del número: `5491123456789`
-- No usar espacios ni guiones
-- Incluir código de país
-
-## 📱 Testing
-
-### Desktop
-- Chrome, Firefox, Safari, Edge
-
-### Mobile
-- iOS Safari (iPhone)
-- Chrome Mobile (Android)
-- Samsung Internet
-
-### Herramientas
-- Chrome DevTools (Device Mode)
-- [BrowserStack](https://www.browserstack.com)
-- [Responsive Design Checker](https://responsivedesignchecker.com)
-
-## 🎯 Mejoras futuras sugeridas
-
-- [ ] Sistema de reservas con backend
-- [ ] Panel de administración
-- [ ] Blog integrado
-- [ ] Galería con lightbox
-- [ ] Google Reviews API
-- [ ] Chat en vivo
-- [ ] PWA completa
-- [ ] Dark/Light mode toggle
-
-## 📝 Licencia
-
-Código libre para uso comercial y personal.
-
-## 💬 Soporte
-
-Para dudas o problemas, consulta la documentación o revisa los comentarios en el código.
+- Chrome/Edge (últimas versiones)
+- Firefox (últimas versiones)
+- Safari (iOS y macOS)
+- Responsive desde 320px hasta 4K
 
 ---
 
-**Desarrollado con 🔥 y optimizado para la mejor experiencia móvil**
+Desarrollado como proyecto personal de sitio web para barbería.

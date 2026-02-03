@@ -2,6 +2,8 @@
 
 Sitio web profesional y responsive para barbería con diseño elegante y sistema de reservas integrado con WhatsApp.
 
+🔗 **[Ver sitio en vivo](https://landing-barberia.netlify.app/)**
+
 ## Descripción
 
 Sitio web moderno desarrollado para una barbería que combina estética clásica con funcionalidad contemporánea. Diseñado para ofrecer una experiencia premium tanto en desktop como en dispositivos móviles, con animaciones suaves y navegación intuitiva.

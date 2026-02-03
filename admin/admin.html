@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin - Barbería Premium</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      color: #e5e5e5;
+      min-height: 100vh;
+    }
+
+    /* Login */
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+    }
+
+    .login-box {
+      background: #1a1a1a;
+      border: 1px solid #d4af37;
+      border-radius: 12px;
+      padding: 3rem;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(212, 175, 55, 0.3);
+    }
+
+    .login-box h1 {
+      color: #d4af37;
+      margin-bottom: 0.5rem;
+      font-size: 2rem;
+    }
+
+    .login-box p {
+      color: #9a9a9a;
+      margin-bottom: 2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #e5e5e5;
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.875rem;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #e5e5e5;
+      font-size: 1rem;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #d4af37;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #d4af37, #e8c55b);
+      color: #0a0a0a;
+      border: none;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+
+    .error-message {
+      background: rgba(255, 69, 58, 0.1);
+      border: 1px solid rgba(255, 69, 58, 0.3);
+      color: #ff453a;
+      padding: 0.875rem;
+      border-radius: 6px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    /* Dashboard */
+    .dashboard {
+      display: none;
+    }
+
+    .dashboard.active {
+      display: block;
+    }
+
+    .header {
+      background: #1a1a1a;
+      border-bottom: 1px solid #333;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      color: #d4af37;
+      font-size: 1.5rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .btn-secondary {
+      padding: 0.625rem 1.25rem;
+      background: transparent;
+      border: 1px solid #d4af37;
+      color: #d4af37;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-secondary:hover {
+      background: #d4af37;
+      color: #0a0a0a;
+    }
+
+    .main-content {
+      padding: 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 1.5rem;
+      transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      border-color: #d4af37;
+    }
+
+    .stat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .stat-card-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(212, 175, 55, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #d4af37;
+      font-size: 1.5rem;
+    }
+
+    .stat-card-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #e5e5e5;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-card-label {
+      color: #9a9a9a;
+      font-size: 0.875rem;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #333;
+    }
+
+    .tab {
+      padding: 1rem 2rem;
+      background: transparent;
+      border: none;
+      color: #9a9a9a;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+
+    .tab:hover {
+      color: #e5e5e5;
+    }
+
+    .tab.active {
+      color: #d4af37;
+    }
+
+    .tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #d4af37;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Filters */
+    .filters {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .filter-item {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    .filter-item label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: #9a9a9a;
+      font-size: 0.875rem;
+    }
+
+    .filter-item select,
+    .filter-item input {
+      width: 100%;
+      padding: 0.625rem;
+      background: #0a0a0a;
+      border: 1px solid #333;
+      border-radius: 6px;
+      color: #e5e5e5;
+    }
+
+    /* Table */
+    .table-container {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    thead {
+      background: #0a0a0a;
+    }
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      color: #d4af37;
+      font-weight: 600;
+      font-size: 0.875rem;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 1rem;
+      border-top: 1px solid #333;
+      color: #e5e5e5;
+    }
+
+    tr:hover {
+      background: rgba(212, 175, 55, 0.05);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-pendiente {
+      background: rgba(255, 159, 10, 0.2);
+      color: #ff9f0a;
+    }
+
+    .badge-confirmada {
+      background: rgba(48, 209, 88, 0.2);
+      color: #30d158;
+    }
+
+    .badge-cancelada {
+      background: rgba(255, 69, 58, 0.2);
+      color: #ff453a;
+    }
+
+    .badge-completada {
+      background: rgba(100, 210, 255, 0.2);
+      color: #64d2ff;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-small {
+      padding: 0.375rem 0.75rem;
+      border: none;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .btn-small:hover {
+      opacity: 0.8;
+    }
+
+    .btn-confirm {
+      background: #30d158;
+      color: white;
+    }
+
+    .btn-cancel {
+      background: #ff453a;
+      color: white;
+    }
+
+    .btn-complete {
+      background: #64d2ff;
+      color: #0a0a0a;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #9a9a9a;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #333;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .filters {
+        flex-direction: column;
+      }
+
+      .table-container {
+        overflow-x: auto;
+      }
+
+      table {
+        min-width: 800px;
+      }
+    }
+
+    /* Loading */
+    .loading {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #333;
+      border-top-color: #d4af37;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Login -->
+  <div id="loginContainer" class="login-container">
+    <div class="login-box">
+      <h1><i class="fas fa-cut"></i> Admin Panel</h1>
+      <p>Barbería Premium</p>
+      
+      <div id="loginError" class="error-message"></div>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <input type="password" id="password" required autocomplete="current-password">
+        </div>
+        
+        <button type="submit" class="btn">
+          <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+      </form>
+      
+      <p style="margin-top: 2rem; font-size: 0.75rem; text-align: center;">
+        Contraseña demo: <code style="background: #0a0a0a; padding: 0.25rem 0.5rem; border-radius: 4px;">admin123</code>
+      </p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="dashboard">
+    <header class="header">
+      <h1><i class="fas fa-cut"></i> Panel de Administración</h1>
+      <div class="header-actions">
+        <span id="currentDate"></span>
+        <button class="btn-secondary" onclick="AdminUI.cerrarSesion()">
+          <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </button>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <!-- Stats -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div>
+              <div class="stat-card-value" id="statHoy">0</div>
+              <div class="stat-card-label">Reservas Hoy</div>
+            </div>
+            <div class="stat-card-icon">
+              <i class="fas fa-calendar-day"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div>
+              <div class="stat-card-value" id="statTotal">0</div>
+              <div class="stat-card-label">Total Reservas</div>
+            </div>
+            <div class="stat-card-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div>
+              <div class="stat-card-value" id="statClientes">0</div>
+              <div class="stat-card-label">Clientes Registrados</div>
+            </div>
+            <div class="stat-card-icon">
+              <i class="fas fa-users"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-header">
+            <div>
+              <div class="stat-card-value" id="statConfirmadas">0</div>
+              <div class="stat-card-label">Confirmadas</div>
+            </div>
+            <div class="stat-card-icon">
+              <i class="fas fa-check-circle"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs">
+        <button class="tab active" onclick="AdminUI.cambiarTab('hoy')">
+          <i class="fas fa-calendar-day"></i> Hoy
+        </button>
+        <button class="tab" onclick="AdminUI.cambiarTab('todas')">
+          <i class="fas fa-calendar"></i> Todas
+        </button>
+        <button class="tab" onclick="AdminUI.cambiarTab('pendientes')">
+          <i class="fas fa-clock"></i> Pendientes
+        </button>
+        <button class="tab" onclick="AdminUI.cambiarTab('estadisticas')">
+          <i class="fas fa-chart-bar"></i> Estadísticas
+        </button>
+      </div>
+
+      <!-- Tab: Hoy -->
+      <div id="tabHoy" class="tab-content active">
+        <div id="agendaHoy"></div>
+      </div>
+
+      <!-- Tab: Todas -->
+      <div id="tabTodas" class="tab-content">
+        <div class="filters">
+          <div class="filter-item">
+            <label>Fecha Inicio</label>
+            <input type="date" id="filtroFechaInicio">
+          </div>
+          <div class="filter-item">
+            <label>Fecha Fin</label>
+            <input type="date" id="filtroFechaFin">
+          </div>
+          <div class="filter-item">
+            <label>Estado</label>
+            <select id="filtroEstado">
+              <option value="">Todos</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="confirmada">Confirmada</option>
+              <option value="cancelada">Cancelada</option>
+              <option value="completada">Completada</option>
+            </select>
+          </div>
+          <div class="filter-item" style="display: flex; align-items: flex-end;">
+            <button class="btn-secondary" style="width: 100%;" onclick="AdminUI.aplicarFiltros()">
+              <i class="fas fa-filter"></i> Filtrar
+            </button>
+          </div>
+        </div>
+        <div id="todasReservas"></div>
+      </div>
+
+      <!-- Tab: Pendientes -->
+      <div id="tabPendientes" class="tab-content">
+        <div id="reservasPendientes"></div>
+      </div>
+
+      <!-- Tab: Estadísticas -->
+      <div id="tabEstadisticas" class="tab-content">
+        <div class="stats-grid" id="statsDetalladas"></div>
+      </div>
+    </div>
+  </div>
+
+  <script src="reservas-system.js"></script>
+  <script src="admin-ui.js"></script>
+</body>
+</html>

@@ -435,35 +435,99 @@ window.goToTestimonial = (index) => testimonials.show(index);
 window.previousTestimonial = () => testimonials.change(-1);
 window.nextTestimonial = () => testimonials.change(1);
 
-// ===== BOOKING SYSTEM (MOCK) =====
-const BookingSystem = {
-  // Simulamos algunos turnos ocupados
-  occupiedSlots: [
-    { date: '2026-02-15', hours: ['10:00', '15:00', '16:00'] },
-    { date: '2026-02-16', hours: ['09:00', '10:00', '11:00'] },
-    { date: '2026-02-17', hours: ['14:00', '18:00'] }
+// ===== MOCK SCHEDULER (SIMULACIÓN AVANZADA) =====
+const MockScheduler = {
+  // Configuración de Barberos y Horarios
+  barbers: [
+    { id: 1, name: 'Juan', shift: { start: 9, end: 17 }, label: 'Juan (Mañana)' },
+    { id: 2, name: 'Pedro', shift: { start: 13, end: 21 }, label: 'Pedro (Tarde)' },
+    { id: 3, name: 'Lucas', shift: { start: 10, end: 19 }, label: 'Lucas (Todo el día)' }
   ],
 
-  getAvailableHours(date) {
-    const day = new Date(date + 'T00:00:00').getDay();
-    let hours = [];
+  // Duración de Servicios (en minutos)
+  services: {
+    'Corte Premium': 45,
+    'Barba Profesional': 30,
+    'Combo Completo': 75,
+    'Color & Tinte': 90,
+    'Perfilado de Cejas': 15,
+    'Tratamiento Facial': 30
+  },
 
-    // Lógica básica de días
-    if (day === 0) return []; // Domingo cerrado
+  // Base de Datos de Reservas (Simulada)
+  appointments: [
+    // Ejemplo: Juan tiene ocupado el 15/02 a las 10:00
+    { barberId: 1, date: '2026-02-15', start: '10:00', duration: 45 },
+    { barberId: 1, date: '2026-02-15', start: '11:00', duration: 30 },
+    { barberId: 2, date: '2026-02-15', start: '15:00', duration: 60 },
+    // Agregamos más datos aleatorios para realismo
+    { barberId: 3, date: '2026-02-16', start: '16:00', duration: 45 }
+  ],
 
-    if (day === 6) { // Sábado
-      hours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
-    } else { // Lunes a Viernes
-      hours = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
-    }
+  // Convertir "HH:MM" a minutos desde medianoche
+  parseTime(timeStr) {
+    const [h, m] = timeStr.split(':').map(Number);
+    return h * 60 + m;
+  },
 
-    // Filtrar ocupados
-    const occupied = this.occupiedSlots.find(slot => slot.date === date);
-    if (occupied) {
-      hours = hours.filter(hour => !occupied.hours.includes(hour));
-    }
+  // Convertir minutos a "HH:MM"
+  formatTime(minutes) {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
+  },
 
-    return hours;
+  getAvailableSlots(dateStr, serviceName, selectedBarberName = 'Cualquiera') {
+    const day = new Date(dateStr + 'T00:00:00').getDay();
+    if (day === 0) return { error: "Domingo cerrado" };
+
+    const duration = this.services[serviceName] || 30;
+    const slotInterval = 30;
+
+    let slotSet = new Set();
+
+    // Filtrar barberos
+    const targetBarbers = selectedBarberName === 'Cualquiera'
+      ? this.barbers
+      : this.barbers.filter(b => b.name === selectedBarberName);
+
+    targetBarbers.forEach(barber => {
+      let startMin = barber.shift.start * 60;
+      let endMin = barber.shift.end * 60;
+
+      for (let time = startMin; time + duration <= endMin; time += slotInterval) {
+        const isBusy = this.appointments.some(appt => {
+          if (appt.barberId !== barber.id || appt.date !== dateStr) return false;
+          const apptStart = this.parseTime(appt.start);
+          const apptEnd = apptStart + appt.duration;
+          const slotEnd = time + duration;
+          return (time < apptEnd && slotEnd > apptStart);
+        });
+
+        if (!isBusy) slotSet.add(this.formatTime(time));
+      }
+    });
+
+    return {
+      slots: Array.from(slotSet).sort(),
+      duration: duration
+    };
+  }
+};
+
+// ===== MOCK API SYSTEM =====
+const api = {
+  submitBooking(data) {
+    console.log('--- ENVIANDO RESERVA AL SISTEMA ---');
+    console.table(data);
+
+    // Simulamos guardado en DB
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        // En una app real, aquí haríamos el POST a un backend real (ej: Supabase)
+        resolve({ success: true, bookingId: Math.random().toString(36).substr(2, 9).toUpperCase() });
+      }, 1000);
+    });
   }
 };
 
@@ -480,61 +544,100 @@ const reservaModal = {
 
     // Set min and max dates
     const today = new Date();
-    // today.setDate(today.getDate() + 1); // Permitir hoy? Mejor mañana para prevenir errores de hora pasada
-    // Si queremos ser precisos deberíamos validar hora actual vs hora turno.
-    // Por simplicidad dejamos mañana como min.
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
-
     fechaInput.min = tomorrow.toISOString().split('T')[0];
 
     const maxDate = new Date();
     maxDate.setDate(maxDate.getDate() + CONFIG.reservaDaysAhead);
     fechaInput.max = maxDate.toISOString().split('T')[0];
 
-    // Handle date change
+    // Al cambiar fecha, intentar buscar
     fechaInput.addEventListener('change', () => {
-      this.updateAvailableHours(fechaInput.value);
-    });
-  },
-
-  updateAvailableHours(date) {
-    const horarioSelect = document.getElementById('horario');
-    if (!horarioSelect) return;
-
-    horarioSelect.innerHTML = '<option value="">Seleccionar horario</option>';
-
-    if (!date) return;
-
-    const hours = BookingSystem.getAvailableHours(date);
-
-    if (hours.length === 0) {
-      const option = document.createElement('option');
-      option.textContent = "No hay turnos disponibles";
-      option.disabled = true;
-      horarioSelect.appendChild(option);
-      return;
-    }
-
-    hours.forEach(hour => {
-      const option = document.createElement('option');
-      option.value = hour;
-      option.textContent = hour;
-      horarioSelect.appendChild(option);
+      this.checkAvailability();
     });
   },
 
   setupFormHandlers() {
-    const servicioSelect = document.getElementById('servicio');
-    if (servicioSelect) {
-      if (window.selectedService) {
-        servicioSelect.value = window.selectedService;
-      }
-      // Listener para actualizar precio
-      servicioSelect.addEventListener('change', () => this.updateSummary());
-      // Inicializar si ya hay valor
+    const formsRefs = ['servicio', 'barbero', 'fecha'];
+    formsRefs.forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', () => {
+        if (id === 'servicio') this.updateSummary();
+        this.checkAvailability();
+      });
+    });
+
+    if (window.selectedService) {
+      document.getElementById('servicio').value = window.selectedService;
       this.updateSummary();
     }
+  },
+
+  checkAvailability() {
+    const fechaInput = document.getElementById('fecha');
+    const servicioSelect = document.getElementById('servicio');
+    const barberoSelect = document.getElementById('barbero');
+
+    if (fechaInput.value && servicioSelect.value) {
+      this.updateAvailableHours(fechaInput.value, servicioSelect.value, barberoSelect.value);
+    }
+  },
+
+  updateAvailableHours(date, serviceName, barberName) {
+    const horarioSelect = document.getElementById('horario');
+    const feedbackMsg = document.getElementById('availabilityFeedback') || this.createFeedbackElement(horarioSelect);
+
+    if (!horarioSelect) return;
+
+    horarioSelect.innerHTML = '<option value="">Consultando...</option>';
+    horarioSelect.disabled = true;
+    feedbackMsg.textContent = '⏳ Verificando agenda...';
+    feedbackMsg.className = 'availability-feedback loading';
+    feedbackMsg.style.display = 'block';
+
+    setTimeout(() => {
+      const result = MockScheduler.getAvailableSlots(date, serviceName, barberName);
+      horarioSelect.innerHTML = '<option value="">Seleccionar horario</option>';
+      horarioSelect.disabled = false;
+
+      if (result.error) {
+        feedbackMsg.textContent = `🚫 ${result.error}`;
+        feedbackMsg.className = 'availability-feedback error';
+        return;
+      }
+
+      const hours = result.slots;
+      if (!hours || hours.length === 0) {
+        feedbackMsg.textContent = '⚠️ Sin cupos para esta selección.';
+        feedbackMsg.className = 'availability-feedback error';
+
+        const option = document.createElement('option');
+        option.textContent = "Sin disponibilidad";
+        option.disabled = true;
+        horarioSelect.appendChild(option);
+      } else {
+        hours.forEach(hour => {
+          const option = document.createElement('option');
+          option.value = hour;
+          option.textContent = hour;
+          horarioSelect.appendChild(option);
+        });
+        feedbackMsg.textContent = `✅ ${hours.length} turnos encontrados (${result.duration}m)`;
+        feedbackMsg.className = 'availability-feedback success';
+      }
+    }, 600);
+  },
+
+  createFeedbackElement(referenceElement) {
+    const div = document.createElement('div');
+    div.id = 'availabilityFeedback';
+    div.style.fontSize = '0.85rem';
+    div.style.marginTop = '0.5rem';
+    div.style.fontWeight = '500';
+    div.style.transition = 'all 0.3s ease';
+    referenceElement.parentNode.appendChild(div);
+    return div;
   },
 
   updateSummary() {
@@ -598,55 +701,89 @@ const reservaModal = {
 
   handleSubmit(event) {
     event.preventDefault();
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
 
     const formData = new FormData(event.target);
     const data = {
       nombre: formData.get('nombre'),
       telefono: formData.get('telefono'),
+      barbero: formData.get('barbero'),
       servicio: formData.get('servicio'),
       fecha: formData.get('fecha'),
       horario: formData.get('horario'),
-      comentarios: formData.get('comentarios')
+      comentarios: formData.get('comentarios'),
+      submittedAt: new Date().toISOString()
     };
 
-    this.sendToWhatsApp(data);
+    api.submitBooking(data).then(response => {
+      this.close();
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalBtnText;
+
+      window.lastBookingData = data; // Guardar para WhatsApp opcional
+      this.showConfirmation(data, response.bookingId);
+    });
   },
 
-  sendToWhatsApp(data) {
-    const mensaje = `
-*NUEVA RESERVA - BARBERÍA PREMIUM*
+  showConfirmation(data, id) {
+    const modal = document.getElementById('successModal');
+    const details = document.getElementById('successDetails');
 
-*Nombre:* ${data.nombre}
-*Servicio:* ${data.servicio}
-*Fecha:* ${utils.formatDate(data.fecha)}
-*Horario:* ${data.horario}
-*Teléfono:* ${data.telefono}
-${data.comentarios ? `\n*Comentarios:* ${data.comentarios}` : ''}
+    details.innerHTML = `
+      <div class="success-detail-item">
+        <span class="success-detail-label">ID Reserva:</span>
+        <span class="success-detail-value">#${id}</span>
+      </div>
+      <div class="success-detail-item">
+        <span class="success-detail-label">Servicio:</span>
+        <span class="success-detail-value">${data.servicio}</span>
+      </div>
+      <div class="success-detail-item">
+        <span class="success-detail-label">Barbero:</span>
+        <span class="success-detail-value">${data.barbero}</span>
+      </div>
+      <div class="success-detail-item">
+        <span class="success-detail-label">Día:</span>
+        <span class="success-detail-value">${utils.formatDate(data.fecha)}</span>
+      </div>
+      <div class="success-detail-item">
+        <span class="success-detail-label">Hora:</span>
+        <span class="success-detail-value">${data.horario} hs</span>
+      </div>
+    `;
 
-_Reserva realizada desde la web_
-    `.trim();
-
-    const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
-    window.open(url, '_blank');
-
-    this.close();
-    this.showConfirmation();
-  },
-
-  showConfirmation() {
-    // Haptic feedback
-    if (navigator.vibrate) {
-      navigator.vibrate([10, 50, 10]);
-    }
-
-    // Simple alert - could be replaced with a nicer modal
-    if (utils.isMobile()) {
-      alert('¡Gracias! Redirigiendo a WhatsApp...');
-    } else {
-      alert('¡Gracias por tu reserva! Te estamos redirigiendo a WhatsApp para confirmar.');
-    }
+    modal.classList.add('active');
+    if (navigator.vibrate) navigator.vibrate([10, 50, 10]);
   }
 };
+
+// Global helpers for success modal
+window.closeSuccessModal = () => document.getElementById('successModal').classList.remove('active');
+window.confirmBookingWhatsApp = () => {
+  const data = window.lastBookingData;
+  if (!data) return;
+
+  const mensaje = `
+*CONFIRMACIÓN DE TURNO*
+Hola! He reservado vía web y quiero confirmar los detalles:
+
+*Nombre:* ${data.nombre}
+*Barbero:* ${data.barbero}
+*Servicio:* ${data.servicio}
+*Fecha:* ${utils.formatDate(data.fecha)}
+*Horario:* ${data.horario} hs
+
+_¡Nos vemos pronto!_
+  `.trim();
+
+  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, '_blank');
+};
+
 
 // Make modal functions global for HTML onclick
 window.openReservaModal = () => reservaModal.open();

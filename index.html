@@ -746,24 +746,35 @@
 
             <div class="form-group">
               <label for="comentarios">Comentarios (opcional)</label>
-              <textarea id="comentarios" name="comentarios" rows="4" placeholder="¿Alguna preferencia especial?"></textarea>
+              <textarea id="comentarios" name="comentarios" rows="3" placeholder="¿Alguna preferencia especial?"></textarea>
             </div>
           </div>
 
           <!-- Columna Derecha: Detalles de Reserva -->
           <div class="modal__col">
             <h4 class="modal__subtitle">Tu Reserva</h4>
-            <div class="form-group">
-              <label for="servicio">Servicio</label>
-              <select id="servicio" name="servicio" required aria-required="true">
-                <option value="">Seleccionar servicio</option>
-                <option value="Corte Premium">Corte Premium - $8.000</option>
-                <option value="Barba Profesional">Barba Profesional - $6.500</option>
-                <option value="Combo Completo">Combo Completo - $12.000</option>
-                <option value="Color & Tinte">Color & Tinte - $10.000</option>
-                <option value="Perfilado de Cejas">Perfilado de Cejas - $4.000</option>
-                <option value="Tratamiento Facial">Tratamiento Facial - $7.500</option>
-              </select>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="barbero">Barbero</label>
+                <select id="barbero" name="barbero" required aria-required="true">
+                  <option value="Cualquiera">Cualquiera disponible</option>
+                  <option value="Juan">Juan (Mañana)</option>
+                  <option value="Pedro">Pedro (Tarde)</option>
+                  <option value="Lucas">Lucas (Todo el día)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="servicio">Servicio</label>
+                <select id="servicio" name="servicio" required aria-required="true">
+                  <option value="">Seleccionar</option>
+                  <option value="Corte Premium">Corte Premium - $8.000</option>
+                  <option value="Barba Profesional">Barba Profesional - $6.500</option>
+                  <option value="Combo Completo">Combo Completo - $12.000</option>
+                  <option value="Color & Tinte">Color & Tinte - $10.000</option>
+                  <option value="Perfilado de Cejas">Perfilado de Cejas - $4.000</option>
+                  <option value="Tratamiento Facial">Tratamiento Facial - $7.500</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-row">
@@ -800,6 +811,32 @@
           <span>Confirmar por WhatsApp</span>
         </button>
       </form>
+    </div>
+  </div>
+
+  <!-- Success Modal -->
+  <div class="modal success-modal" id="successModal">
+    <div class="modal__overlay" onclick="closeSuccessModal()"></div>
+    <div class="modal__content success-modal__content">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2>¡Turno Reservado!</h2>
+      <p>Tu solicitud ha sido enviada con éxito a nuestro sistema.</p>
+      
+      <div class="success-details" id="successDetails">
+        <!-- Generado dinámicamente -->
+      </div>
+
+      <div class="success-actions">
+        <button class="btn btn--hero-primary" onclick="confirmBookingWhatsApp()">
+          <i class="fab fa-whatsapp"></i>
+          <span>Confirmar por WhatsApp</span>
+        </button>
+        <button class="btn btn--secondary" onclick="closeSuccessModal()">
+          <span>Cerrar</span>
+        </button>
+      </div>
     </div>
   </div>
 

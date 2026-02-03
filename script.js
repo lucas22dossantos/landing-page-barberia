@@ -435,97 +435,48 @@ window.goToTestimonial = (index) => testimonials.show(index);
 window.previousTestimonial = () => testimonials.change(-1);
 window.nextTestimonial = () => testimonials.change(1);
 
-// ===== MOCK SCHEDULER (SIMULACIÓN AVANZADA) =====
+// ===== MOCK SCHEDULER (Sincronizado con Admin) =====
 const MockScheduler = {
-  // Configuración de Barberos y Horarios
-  barbers: [
-    { id: 1, name: 'Juan', shift: { start: 9, end: 17 }, label: 'Juan (Mañana)' },
-    { id: 2, name: 'Pedro', shift: { start: 13, end: 21 }, label: 'Pedro (Tarde)' },
-    { id: 3, name: 'Lucas', shift: { start: 10, end: 19 }, label: 'Lucas (Todo el día)' }
-  ],
-
-  // Duración de Servicios (en minutos)
-  services: {
-    'Corte Premium': 45,
-    'Barba Profesional': 30,
-    'Combo Completo': 75,
-    'Color & Tinte': 90,
-    'Perfilado de Cejas': 15,
-    'Tratamiento Facial': 30
-  },
-
-  // Base de Datos de Reservas (Simulada)
-  appointments: [
-    // Ejemplo: Juan tiene ocupado el 15/02 a las 10:00
-    { barberId: 1, date: '2026-02-15', start: '10:00', duration: 45 },
-    { barberId: 1, date: '2026-02-15', start: '11:00', duration: 30 },
-    { barberId: 2, date: '2026-02-15', start: '15:00', duration: 60 },
-    // Agregamos más datos aleatorios para realismo
-    { barberId: 3, date: '2026-02-16', start: '16:00', duration: 45 }
-  ],
-
-  // Convertir "HH:MM" a minutos desde medianoche
-  parseTime(timeStr) {
-    const [h, m] = timeStr.split(':').map(Number);
-    return h * 60 + m;
-  },
-
-  // Convertir minutos a "HH:MM"
-  formatTime(minutes) {
-    const h = Math.floor(minutes / 60);
-    const m = minutes % 60;
-    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
-  },
-
   getAvailableSlots(dateStr, serviceName, selectedBarberName = 'Cualquiera') {
-    const day = new Date(dateStr + 'T00:00:00').getDay();
-    if (day === 0) return { error: "Domingo cerrado" };
+    if (typeof SistemaReservas === 'undefined') return { slots: [], duration: 30 };
 
-    const duration = this.services[serviceName] || 30;
-    const slotInterval = 30;
-
-    let slotSet = new Set();
-
-    // Filtrar barberos
-    const targetBarbers = selectedBarberName === 'Cualquiera'
-      ? this.barbers
-      : this.barbers.filter(b => b.name === selectedBarberName);
-
-    targetBarbers.forEach(barber => {
-      let startMin = barber.shift.start * 60;
-      let endMin = barber.shift.end * 60;
-
-      for (let time = startMin; time + duration <= endMin; time += slotInterval) {
-        const isBusy = this.appointments.some(appt => {
-          if (appt.barberId !== barber.id || appt.date !== dateStr) return false;
-          const apptStart = this.parseTime(appt.start);
-          const apptEnd = apptStart + appt.duration;
-          const slotEnd = time + duration;
-          return (time < apptEnd && slotEnd > apptStart);
-        });
-
-        if (!isBusy) slotSet.add(this.formatTime(time));
-      }
-    });
-
+    // Obtener horarios desde el sistema unificado
+    const slots = SistemaReservas.obtenerHorariosDisponibles(dateStr, serviceName, selectedBarberName);
     return {
-      slots: Array.from(slotSet).sort(),
-      duration: duration
+      slots: slots,
+      duration: 30
     };
   }
 };
 
-// ===== MOCK API SYSTEM =====
+// ===== MOCK API SYSTEM (Sincronizado con Admin) =====
 const api = {
   submitBooking(data) {
-    console.log('--- ENVIANDO RESERVA AL SISTEMA ---');
+    console.log('--- ENVIANDO RESERVA AL SISTEMA UNIFICADO ---');
     console.table(data);
 
-    // Simulamos guardado en DB
     return new Promise((resolve) => {
       setTimeout(() => {
-        // En una app real, aquí haríamos el POST a un backend real (ej: Supabase)
-        resolve({ success: true, bookingId: Math.random().toString(36).substr(2, 9).toUpperCase() });
+        if (typeof SistemaReservas !== 'undefined') {
+          const result = SistemaReservas.crearReserva({
+            nombre: data.nombre,
+            telefono: data.telefono,
+            barbero: data.barbero,
+            servicio: data.servicio,
+            fecha: data.fecha,
+            horario: data.horario,
+            comentarios: data.comentarios
+          });
+
+          if (result.exito) {
+            resolve({ success: true, bookingId: result.reserva.id });
+          } else {
+            console.error("Error en SistemaReservas:", result.error);
+            resolve({ success: false, error: result.error });
+          }
+        } else {
+          resolve({ success: true, bookingId: 'OFFLINE-' + Math.random().toString(36).substr(2, 5).toUpperCase() });
+        }
       }, 1000);
     });
   }

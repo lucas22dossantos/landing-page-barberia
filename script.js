@@ -1,1324 +1,676 @@
-// ===== PARTICLE BACKGROUND =====
-function createParticles() {
-  const particlesContainer = document.getElementById("particles");
-  if (!particlesContainer) return;
+// ===== BARBERÍA PREMIUM - OPTIMIZED JAVASCRIPT =====
 
-  const particleCount = 50;
+// ===== CONFIGURATION =====
+const CONFIG = {
+  whatsappNumber: '5491123456789', // Cambia este número
+  animationOffset: 100,
+  scrollThreshold: 50,
+  testimonialInterval: 5000,
+  reservaDaysAhead: 30
+};
 
-  for (let i = 0; i < particleCount; i++) {
-    const particle = document.createElement("div");
-    particle.className = "particle";
+// ===== STATE =====
+const state = {
+  currentTestimonial: 0,
+  testimonialTimer: null,
+  isMenuOpen: false,
+  reservas: [],
+  lastScrollY: 0,
+  touchStartY: 0
+};
 
-    const size = Math.random() * 3 + 1;
-    const x = Math.random() * 100;
-    const y = Math.random() * 100;
-    const duration = Math.random() * 20 + 10;
-    const delay = Math.random() * 5;
+// ===== UTILITY FUNCTIONS =====
+const utils = {
+  debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  },
 
-    particle.style.cssText = `
-      position: absolute;
-      width: ${size}px;
-      height: ${size}px;
-      background: rgba(212, 175, 55, ${Math.random() * 0.5 + 0.2});
-      border-radius: 50%;
-      left: ${x}%;
-      top: ${y}%;
-      animation: particleFloat ${duration}s ${delay}s infinite ease-in-out;
-      pointer-events: none;
-    `;
-
-    particlesContainer.appendChild(particle);
-  }
-
-  // Add particle animation styles
-  const style = document.createElement("style");
-  style.textContent = `
-    @keyframes particleFloat {
-      0%, 100% {
-        transform: translate(0, 0) scale(1);
-        opacity: 0.3;
+  throttle(func, limit) {
+    let inThrottle;
+    return function(...args) {
+      if (!inThrottle) {
+        func.apply(this, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
       }
-      25% {
-        transform: translate(30px, -30px) scale(1.2);
-        opacity: 0.6;
-      }
-      50% {
-        transform: translate(-30px, -60px) scale(0.8);
-        opacity: 0.4;
-      }
-      75% {
-        transform: translate(20px, -30px) scale(1.1);
-        opacity: 0.5;
-      }
+    };
+  },
+
+  formatDate(date) {
+    return new Date(date).toLocaleDateString('es-AR', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  },
+
+  isWeekday(date) {
+    const day = new Date(date).getDay();
+    return day !== 0; // 0 = Domingo
+  },
+
+  getAvailableHours(date) {
+    const day = new Date(date).getDay();
+    
+    // Domingo cerrado
+    if (day === 0) return [];
+    
+    // Sábado
+    if (day === 6) {
+      return ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
     }
-  `;
-  document.head.appendChild(style);
-}
+    
+    // Lunes a Viernes
+    return ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+  },
 
-// ===== MOBILE MENU TOGGLE =====
-function toggleMenu() {
-  const hamburger = document.getElementById("hamburger");
-  const navLinks = document.getElementById("nav-links");
+  isMobile() {
+    return window.innerWidth <= 768;
+  },
 
-  hamburger.classList.toggle("active");
-  navLinks.classList.toggle("active");
-
-  // Prevent body scroll when menu is open
-  if (navLinks.classList.contains("active")) {
-    document.body.style.overflow = "hidden";
-  } else {
-    document.body.style.overflow = "";
+  isTouchDevice() {
+    return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
   }
-}
+};
 
-// Close menu when a link is clicked
-document.addEventListener("DOMContentLoaded", function () {
-  createParticles();
+// ===== DOM ELEMENTS =====
+const elements = {
+  nav: document.getElementById('nav'),
+  navToggle: document.getElementById('navToggle'),
+  navMenu: document.getElementById('navMenu'),
+  progressBar: document.getElementById('progressBar'),
+  reservaModal: document.getElementById('reservaModal'),
+  reservaForm: document.getElementById('reservaForm')
+};
 
-  const navLinks = document.querySelectorAll(".nav-link");
-  navLinks.forEach((link) => {
-    link.addEventListener("click", function () {
-      const hamburger = document.getElementById("hamburger");
-      const navLinksContainer = document.getElementById("nav-links");
-      hamburger.classList.remove("active");
-      navLinksContainer.classList.remove("active");
-      document.body.style.overflow = "";
-    });
-  });
+// ===== MOBILE OPTIMIZATIONS =====
+const mobileOptimizations = {
+  init() {
+    this.preventZoom();
+    this.handleTouchEvents();
+    this.optimizeScrollPerformance();
+    this.handleOrientation();
+  },
 
-  // Initialize counters
-  initCounters();
-
-  // Initialize scroll reveals
-  initScrollReveal();
-  
-  // Initialize reservas demo
-  inicializarReservasDemo();
-});
-
-// ===== INITIALIZE AOS =====
-AOS.init({
-  duration: 1000,
-  once: true,
-  offset: 100,
-  easing: "ease-out-cubic",
-  delay: 50,
-});
-
-// ===== NAVBAR SCROLL EFFECT =====
-let lastScroll = 0;
-const navbar = document.getElementById("navbar");
-
-window.addEventListener("scroll", function () {
-  const currentScroll = window.pageYOffset;
-
-  if (currentScroll > 50) {
-    navbar.classList.add("scrolled");
-  } else {
-    navbar.classList.remove("scrolled");
-  }
-
-  // Hide navbar on scroll down, show on scroll up
-  if (currentScroll > lastScroll && currentScroll > 500) {
-    navbar.style.transform = "translateY(-100%)";
-  } else {
-    navbar.style.transform = "translateY(0)";
-  }
-
-  lastScroll = currentScroll;
-});
-
-// ===== SCROLL PROGRESS BAR =====
-function updateScrollProgress() {
-  const scrollProgressBar = document.querySelector(".scroll-progress-bar");
-  if (scrollProgressBar) {
-    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const docHeight =
-      document.documentElement.scrollHeight -
-      document.documentElement.clientHeight;
-
-    // Calculate percentage, ensuring it's between 0 and 100
-    let scrollPercent = 0;
-    if (docHeight > 0) {
-      scrollPercent = (scrollTop / docHeight) * 100;
-      scrollPercent = Math.min(100, Math.max(0, scrollPercent));
-    }
-
-    scrollProgressBar.style.width = scrollPercent + "%";
-  }
-}
-
-// Initialize on load
-document.addEventListener("DOMContentLoaded", updateScrollProgress);
-
-// Update on scroll
-window.addEventListener("scroll", updateScrollProgress);
-
-// ===== SMOOTH SCROLL FUNCTIONS =====
-// scrollToReservar ahora abre el modal de reservas (ver línea 700+)
-
-function scrollToSection(sectionId) {
-  const section = document.getElementById(sectionId);
-  if (section) {
-    section.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }
-}
-
-// ===== COUNTER ANIMATION =====
-function initCounters() {
-  const counters = document.querySelectorAll(".stat-number[data-target]");
-
-  const observerOptions = {
-    threshold: 0.5,
-    rootMargin: "0px",
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        animateCounter(entry.target);
-        observer.unobserve(entry.target);
+  preventZoom() {
+    // Prevenir zoom en double-tap en iOS
+    let lastTouchEnd = 0;
+    document.addEventListener('touchend', (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd <= 300) {
+        e.preventDefault();
       }
-    });
-  }, observerOptions);
+      lastTouchEnd = now;
+    }, { passive: false });
+  },
 
-  counters.forEach((counter) => observer.observe(counter));
-}
+  handleTouchEvents() {
+    // Mejorar scroll en iOS
+    document.addEventListener('touchstart', (e) => {
+      state.touchStartY = e.touches[0].clientY;
+    }, { passive: true });
 
-function animateCounter(element) {
-  const targetStr = element.getAttribute("data-target");
-  const isDecimal = element.getAttribute("data-decimal") === "true";
-  const target = parseFloat(targetStr);
-  const duration = 2000;
-  const increment = target / (duration / 16);
-  let current = 0;
-
-  const updateCounter = () => {
-    current += increment;
-    if (current < target) {
-      if (isDecimal) {
-        element.textContent = current.toFixed(1);
-      } else {
-        element.textContent = Math.floor(current);
+    // Prevenir scroll cuando el menú está abierto
+    document.addEventListener('touchmove', (e) => {
+      if (state.isMenuOpen && !elements.navMenu.contains(e.target)) {
+        e.preventDefault();
       }
-      requestAnimationFrame(updateCounter);
+    }, { passive: false });
+  },
+
+  optimizeScrollPerformance() {
+    // Usar requestAnimationFrame para scroll suave
+    let ticking = false;
+    
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          navigation.handleScroll();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+  },
+
+  handleOrientation() {
+    // Manejar cambios de orientación
+    window.addEventListener('orientationchange', () => {
+      // Cerrar menú al rotar
+      if (state.isMenuOpen) {
+        elements.navToggle.click();
+      }
+      
+      // Recalcular alturas
+      setTimeout(() => {
+        document.documentElement.style.setProperty(
+          '--vh',
+          `${window.innerHeight * 0.01}px`
+        );
+      }, 100);
+    });
+  }
+};
+
+// ===== NAVIGATION =====
+const navigation = {
+  init() {
+    this.handleScroll();
+    this.handleToggle();
+    this.handleLinks();
+    this.handleClickOutside();
+    
+    // Usar throttle en lugar de debounce para mejor respuesta en móvil
+    if (utils.isMobile()) {
+      window.addEventListener('scroll', utils.throttle(() => this.handleScroll(), 100), { passive: true });
     } else {
-      if (isDecimal) {
-        element.textContent = target.toFixed(1);
+      window.addEventListener('scroll', utils.debounce(() => this.handleScroll(), 10), { passive: true });
+    }
+  },
+
+  handleScroll() {
+    const scrolled = window.pageYOffset > CONFIG.scrollThreshold;
+    elements.nav.classList.toggle('scrolled', scrolled);
+    
+    // Update progress bar con throttle
+    const winScroll = document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scrolled_percent = Math.min(100, (winScroll / height) * 100);
+    elements.progressBar.style.width = scrolled_percent + '%';
+
+    // Auto-hide nav en móvil al hacer scroll down
+    if (utils.isMobile()) {
+      const currentScrollY = window.pageYOffset;
+      if (currentScrollY > state.lastScrollY && currentScrollY > 100) {
+        elements.nav.style.transform = 'translateY(-100%)';
       } else {
-        element.textContent = target.toLocaleString();
+        elements.nav.style.transform = 'translateY(0)';
       }
+      state.lastScrollY = currentScrollY;
     }
-  };
+  },
 
-  updateCounter();
-}
+  handleToggle() {
+    elements.navToggle.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.toggleMenu();
+    });
+  },
 
-// ===== TESTIMONIAL SLIDER =====
-let currentTestimonialIndex = 0;
-const testimonials = document.querySelectorAll(".testimonial-card");
-const dots = document.querySelectorAll(".dot");
-
-function showTestimonial(index) {
-  testimonials.forEach((testimonial) => {
-    testimonial.classList.remove("active");
-  });
-
-  dots.forEach((dot) => {
-    dot.classList.remove("active");
-  });
-
-  if (testimonials[index]) {
-    testimonials[index].classList.add("active");
-    if (dots[index]) {
-      dots[index].classList.add("active");
+  toggleMenu() {
+    state.isMenuOpen = !state.isMenuOpen;
+    elements.navToggle.classList.toggle('active', state.isMenuOpen);
+    elements.navMenu.classList.toggle('active', state.isMenuOpen);
+    document.body.style.overflow = state.isMenuOpen ? 'hidden' : '';
+    
+    // Agregar haptic feedback en dispositivos compatibles
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
     }
-    currentTestimonialIndex = index;
-  }
-}
+  },
 
-function changeTestimonial(direction) {
-  let newIndex = currentTestimonialIndex + direction;
-
-  if (newIndex < 0) {
-    newIndex = testimonials.length - 1;
-  } else if (newIndex >= testimonials.length) {
-    newIndex = 0;
-  }
-
-  showTestimonial(newIndex);
-}
-
-function currentTestimonial(index) {
-  showTestimonial(index);
-}
-
-// Auto-rotate testimonials
-let testimonialInterval = setInterval(() => {
-  changeTestimonial(1);
-}, 5000);
-
-// Pause auto-rotation on hover
-const testimonialSlider = document.querySelector(".testimonial-slider");
-if (testimonialSlider) {
-  testimonialSlider.addEventListener("mouseenter", () => {
-    clearInterval(testimonialInterval);
-  });
-
-  testimonialSlider.addEventListener("mouseleave", () => {
-    testimonialInterval = setInterval(() => {
-      changeTestimonial(1);
-    }, 5000);
-  });
-}
-
-// Keyboard navigation for testimonials
-document.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowLeft") {
-    changeTestimonial(-1);
-    clearInterval(testimonialInterval);
-  } else if (e.key === "ArrowRight") {
-    changeTestimonial(1);
-    clearInterval(testimonialInterval);
-  }
-});
-
-// ===== TEAM TOGGLE =====
-function toggleTeam() {
-  const teamSection = document.getElementById("team-section");
-  const body = document.body;
-  
-  // Crear o obtener backdrop
-  let backdrop = document.querySelector(".team-backdrop");
-  if (!backdrop) {
-    backdrop = document.createElement("div");
-    backdrop.className = "team-backdrop";
-    backdrop.onclick = toggleTeam; // Cerrar al hacer click en el backdrop
-    document.body.appendChild(backdrop);
-  }
-  
-  if (teamSection.classList.contains("hidden")) {
-    // Mostrar el equipo
-    teamSection.classList.remove("hidden");
-    teamSection.classList.add("showing");
-    backdrop.classList.add("active");
-    body.style.overflow = "hidden";
-    
-    // Hacer que la sección aparezca con z-index alto
-    teamSection.style.position = "relative";
-    teamSection.style.zIndex = "1000";
-    
-    // Hacer scroll suave a la sección después de que empiece la animación
-    setTimeout(() => {
-      teamSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
+  handleLinks() {
+    const links = document.querySelectorAll('.nav__link');
+    links.forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = link.getAttribute('href');
+        const section = document.querySelector(target);
+        
+        if (section) {
+          // Offset para la navegación fija
+          const offset = utils.isMobile() ? 70 : 80;
+          const targetPosition = section.offsetTop - offset;
+          
+          window.scrollTo({
+            top: targetPosition,
+            behavior: 'smooth'
+          });
+        }
+        
+        // Close mobile menu
+        if (state.isMenuOpen) {
+          this.toggleMenu();
+        }
+        
+        // Haptic feedback
+        if (navigator.vibrate) {
+          navigator.vibrate(5);
+        }
       });
-    }, 100);
+    });
+  },
+
+  handleClickOutside() {
+    document.addEventListener('click', (e) => {
+      if (state.isMenuOpen && 
+          !elements.navMenu.contains(e.target) && 
+          !elements.navToggle.contains(e.target)) {
+        this.toggleMenu();
+      }
+    });
+  }
+};
+
+// ===== ANIMATIONS =====
+const animations = {
+  init() {
+    this.observeElements();
+    this.animateCounters();
+  },
+
+  observeElements() {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animated');
+        }
+      });
+    }, {
+      threshold: utils.isMobile() ? 0.05 : 0.1,
+      rootMargin: utils.isMobile() ? '0px 0px -30px 0px' : '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('[data-animate]').forEach(el => {
+      observer.observe(el);
+    });
+  },
+
+  animateCounters() {
+    const counters = document.querySelectorAll('[data-count]');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          this.animateCounter(entry.target);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+
+    counters.forEach(counter => observer.observe(counter));
+  },
+
+  animateCounter(element) {
+    const target = parseFloat(element.dataset.count);
+    const isDecimal = element.dataset.decimal !== undefined;
+    const duration = utils.isMobile() ? 1500 : 2000; // Más rápido en móvil
+    const increment = target / (duration / 16);
+    let current = 0;
+
+    const updateCounter = () => {
+      current += increment;
+      if (current < target) {
+        element.textContent = isDecimal ? current.toFixed(1) : Math.floor(current);
+        requestAnimationFrame(updateCounter);
+      } else {
+        element.textContent = isDecimal ? target.toFixed(1) : target.toLocaleString();
+      }
+    };
+
+    updateCounter();
+  }
+};
+
+// ===== TESTIMONIALS =====
+const testimonials = {
+  init() {
+    this.elements = {
+      items: document.querySelectorAll('.testimonial'),
+      dots: document.querySelectorAll('.dot'),
+      slider: document.querySelector('.testimonials__slider')
+    };
     
-    // Animar los miembros del equipo uno por uno
-    const teamMembers = teamSection.querySelectorAll(".team-member");
-    teamMembers.forEach((member, index) => {
-      setTimeout(() => {
-        member.style.opacity = "1";
-        member.style.transform = "translateY(0) scale(1)";
-      }, 300 + (index * 100));
+    if (this.elements.items.length > 0) {
+      this.show(0);
+      this.startAutoRotate();
+      this.handleKeyboard();
+      this.handleSwipe();
+    }
+  },
+
+  show(index) {
+    this.elements.items.forEach((item, i) => {
+      item.classList.toggle('active', i === index);
     });
     
-    // Animar el header
-    const teamHeader = teamSection.querySelector(".team-header");
-    if (teamHeader) {
-      setTimeout(() => {
-        teamHeader.style.opacity = "1";
-        teamHeader.style.transform = "translateY(0)";
-      }, 200);
-    }
-  } else {
-    // Ocultar el equipo
-    teamSection.classList.remove("showing");
-    teamSection.classList.add("hiding");
-    backdrop.classList.remove("active");
-    body.style.overflow = "";
-    
-    // Animar salida de los miembros
-    const teamMembers = teamSection.querySelectorAll(".team-member");
-    teamMembers.forEach((member, index) => {
-      setTimeout(() => {
-        member.style.opacity = "0";
-        member.style.transform = "translateY(30px) scale(0.95)";
-      }, index * 50);
+    this.elements.dots.forEach((dot, i) => {
+      dot.classList.toggle('active', i === index);
     });
     
-    // Animar salida del header
-    const teamHeader = teamSection.querySelector(".team-header");
-    if (teamHeader) {
-      teamHeader.style.opacity = "0";
-      teamHeader.style.transform = "translateY(-20px)";
+    state.currentTestimonial = index;
+  },
+
+  change(direction) {
+    const total = this.elements.items.length;
+    let newIndex = state.currentTestimonial + direction;
+    
+    if (newIndex < 0) newIndex = total - 1;
+    if (newIndex >= total) newIndex = 0;
+    
+    this.show(newIndex);
+    
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate(5);
+    }
+  },
+
+  startAutoRotate() {
+    state.testimonialTimer = setInterval(() => {
+      this.change(1);
+    }, CONFIG.testimonialInterval);
+  },
+
+  stopAutoRotate() {
+    if (state.testimonialTimer) {
+      clearInterval(state.testimonialTimer);
+    }
+  },
+
+  handleKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        this.change(-1);
+        this.stopAutoRotate();
+      } else if (e.key === 'ArrowRight') {
+        this.change(1);
+        this.stopAutoRotate();
+      }
+    });
+  },
+
+  handleSwipe() {
+    if (!utils.isTouchDevice() || !this.elements.slider) return;
+
+    let startX = 0;
+    let startY = 0;
+    let distX = 0;
+    let distY = 0;
+
+    this.elements.slider.addEventListener('touchstart', (e) => {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+    }, { passive: true });
+
+    this.elements.slider.addEventListener('touchmove', (e) => {
+      distX = e.touches[0].clientX - startX;
+      distY = e.touches[0].clientY - startY;
+    }, { passive: true });
+
+    this.elements.slider.addEventListener('touchend', () => {
+      // Verificar que el swipe es horizontal
+      if (Math.abs(distX) > Math.abs(distY) && Math.abs(distX) > 50) {
+        if (distX > 0) {
+          this.change(-1); // Swipe right
+        } else {
+          this.change(1); // Swipe left
+        }
+        this.stopAutoRotate();
+      }
+      distX = 0;
+      distY = 0;
+    });
+  }
+};
+
+// Make testimonial functions global for HTML onclick
+window.changeTestimonial = (direction) => testimonials.change(direction);
+window.goToTestimonial = (index) => testimonials.show(index);
+
+// ===== RESERVA MODAL =====
+const reservaModal = {
+  init() {
+    this.setupDateInput();
+    this.setupFormHandlers();
+  },
+
+  setupDateInput() {
+    const fechaInput = document.getElementById('fecha');
+    if (!fechaInput) return;
+
+    // Set min and max dates
+    const today = new Date();
+    today.setDate(today.getDate() + 1);
+    fechaInput.min = today.toISOString().split('T')[0];
+
+    const maxDate = new Date();
+    maxDate.setDate(maxDate.getDate() + CONFIG.reservaDaysAhead);
+    fechaInput.max = maxDate.toISOString().split('T')[0];
+
+    // Handle date change
+    fechaInput.addEventListener('change', () => {
+      this.updateAvailableHours(fechaInput.value);
+    });
+  },
+
+  updateAvailableHours(date) {
+    const horarioSelect = document.getElementById('horario');
+    if (!horarioSelect) return;
+
+    horarioSelect.innerHTML = '<option value="">Seleccionar horario</option>';
+
+    if (!utils.isWeekday(date)) {
+      horarioSelect.innerHTML = '<option value="">Cerrado los domingos</option>';
+      horarioSelect.disabled = true;
+      return;
+    }
+
+    const hours = utils.getAvailableHours(date);
+    horarioSelect.disabled = false;
+
+    hours.forEach(hour => {
+      const option = document.createElement('option');
+      option.value = hour;
+      option.textContent = hour;
+      horarioSelect.appendChild(option);
+    });
+  },
+
+  setupFormHandlers() {
+    const servicioSelect = document.getElementById('servicio');
+    if (servicioSelect && window.selectedService) {
+      servicioSelect.value = window.selectedService;
+    }
+  },
+
+  open() {
+    elements.reservaModal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    // Focus en el primer input en desktop
+    if (!utils.isMobile()) {
+      setTimeout(() => {
+        const firstInput = elements.reservaModal.querySelector('input');
+        if (firstInput) firstInput.focus();
+      }, 300);
     }
     
-    setTimeout(() => {
-      teamSection.classList.add("hidden");
-      teamSection.classList.remove("hiding");
-      teamSection.style.zIndex = "";
-      
-      // Reset de los miembros
-      teamMembers.forEach((member) => {
-        member.style.opacity = "0";
-        member.style.transform = "translateY(30px)";
-      });
-      
-      if (teamHeader) {
-        teamHeader.style.opacity = "0";
-        teamHeader.style.transform = "translateY(-20px)";
-      }
-    }, 600);
-  }
-}
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate(10);
+    }
+  },
 
-// Inicializar estilos del header al cargar
-document.addEventListener("DOMContentLoaded", function() {
-  const teamHeader = document.querySelector(".team-header");
-  if (teamHeader) {
-    teamHeader.style.opacity = "0";
-    teamHeader.style.transform = "translateY(-20px)";
-    teamHeader.style.transition = "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
-  }
-});
+  close() {
+    elements.reservaModal.classList.remove('active');
+    document.body.style.overflow = '';
+    
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate(5);
+    }
+  },
 
-// ===== FAQ ACCORDION =====
-function toggleFaq(button) {
-  const faqItem = button.parentElement;
-  const isActive = faqItem.classList.contains("active");
+  handleSubmit(event) {
+    event.preventDefault();
+    
+    const formData = new FormData(event.target);
+    const data = {
+      nombre: formData.get('nombre'),
+      telefono: formData.get('telefono'),
+      servicio: formData.get('servicio'),
+      fecha: formData.get('fecha'),
+      horario: formData.get('horario'),
+      comentarios: formData.get('comentarios')
+    };
 
-  // Close all other FAQ items
-  document.querySelectorAll(".faq-item").forEach((item) => {
-    item.classList.remove("active");
-  });
+    this.sendToWhatsApp(data);
+  },
 
-  // Toggle current item
-  if (!isActive) {
-    faqItem.classList.add("active");
-  }
-}
+  sendToWhatsApp(data) {
+    const mensaje = `
+*NUEVA RESERVA - BARBERÍA PREMIUM*
 
-// ===== WHATSAPP FUNCTION =====
-function openWhatsApp() {
-  const phoneNumber = "5491112345678"; // Replace with actual phone number
-  const message = encodeURIComponent(
-    "¡Hola! Me gustaría reservar un turno en Barbería Premium.",
-  );
-  const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
-  window.open(whatsappURL, "_blank");
-}
+*Nombre:* ${data.nombre}
+*Servicio:* ${data.servicio}
+*Fecha:* ${utils.formatDate(data.fecha)}
+*Horario:* ${data.horario}
+*Teléfono:* ${data.telefono}
+${data.comentarios ? `\n*Comentarios:* ${data.comentarios}` : ''}
 
-// ===== WHATSAPP MODAL =====
-function openWhatsAppModal() {
-  const modal = document.getElementById("whatsapp-modal");
-  modal.classList.add("active");
-  document.body.style.overflow = "hidden";
-}
+_Reserva realizada desde la web_
+    `.trim();
 
-function closeWhatsAppModal() {
-  const modal = document.getElementById("whatsapp-modal");
-  modal.classList.remove("active");
-  document.body.style.overflow = "";
-}
+    const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
+    window.open(url, '_blank');
+    
+    this.close();
+    this.showConfirmation();
+  },
 
-function sendWhatsApp(service) {
-  const phoneNumber = "5491112345678";
-  let message = "";
-  
-  if (service === "Consulta General") {
-    message = "¡Hola! Me gustaría hacer una consulta sobre los servicios de la barbería.";
-  } else {
-    message = `¡Hola! Me gustaría reservar un turno para: ${service}`;
-  }
-  
-  const whatsappURL = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-  window.open(whatsappURL, "_blank");
-  closeWhatsAppModal();
-}
-
-// Cerrar modal con tecla Escape
-document.addEventListener("keydown", function(e) {
-  if (e.key === "Escape") {
-    closeWhatsAppModal();
-  }
-});
-
-// ===== GALLERY LIGHTBOX =====
-let currentLightboxIndex = 0;
-const galleryImages = [
-  "assets/galeria-img-1.webp",
-  "assets/galeria-img-2.webp",
-  "assets/galeria-img-3.webp",
-  "assets/galeria-img-4.webp",
-  "assets/galeria-img-5.webp",
-  "assets/galeria-img-6.webp",
-  "assets/galeria-img-7.webp",
-  "assets/galeria-img-8.webp"
-];
-
-function openGalleryLightbox(index) {
-  currentLightboxIndex = index;
-  
-  // Crear lightbox si no existe
-  let lightbox = document.getElementById("gallery-lightbox");
-  if (!lightbox) {
-    lightbox = document.createElement("div");
-    lightbox.id = "gallery-lightbox";
-    lightbox.className = "gallery-lightbox";
-    lightbox.innerHTML = `
-      <div class="lightbox-overlay" onclick="closeGalleryLightbox()"></div>
-      <button class="lightbox-close" onclick="closeGalleryLightbox()">
-        <i class="fas fa-times"></i>
-      </button>
-      <button class="lightbox-nav lightbox-prev" onclick="navigateLightbox(-1)">
-        <i class="fas fa-chevron-left"></i>
-      </button>
-      <button class="lightbox-nav lightbox-next" onclick="navigateLightbox(1)">
-        <i class="fas fa-chevron-right"></i>
-      </button>
-      <img class="lightbox-image" src="" alt="Gallery image" />
-      <div class="lightbox-counter"></div>
-    `;
-    document.body.appendChild(lightbox);
-  }
-  
-  updateLightboxImage();
-  lightbox.classList.add("active");
-  document.body.style.overflow = "hidden";
-}
-
-function closeGalleryLightbox() {
-  const lightbox = document.getElementById("gallery-lightbox");
-  if (lightbox) {
-    lightbox.classList.remove("active");
-    document.body.style.overflow = "";
-  }
-}
-
-function navigateLightbox(direction) {
-  currentLightboxIndex += direction;
-  
-  if (currentLightboxIndex < 0) {
-    currentLightboxIndex = galleryImages.length - 1;
-  } else if (currentLightboxIndex >= galleryImages.length) {
-    currentLightboxIndex = 0;
-  }
-  
-  updateLightboxImage();
-}
-
-function updateLightboxImage() {
-  const lightbox = document.getElementById("gallery-lightbox");
-  const img = lightbox.querySelector(".lightbox-image");
-  const counter = lightbox.querySelector(".lightbox-counter");
-  
-  img.src = galleryImages[currentLightboxIndex];
-  counter.textContent = `${currentLightboxIndex + 1} / ${galleryImages.length}`;
-}
-
-// Navegación con teclado en lightbox
-document.addEventListener("keydown", function(e) {
-  const lightbox = document.getElementById("gallery-lightbox");
-  if (lightbox && lightbox.classList.contains("active")) {
-    if (e.key === "Escape") {
-      closeGalleryLightbox();
-    } else if (e.key === "ArrowLeft") {
-      navigateLightbox(-1);
-    } else if (e.key === "ArrowRight") {
-      navigateLightbox(1);
+  showConfirmation() {
+    // Haptic feedback
+    if (navigator.vibrate) {
+      navigator.vibrate([10, 50, 10]);
+    }
+    
+    // Simple alert - could be replaced with a nicer modal
+    if (utils.isMobile()) {
+      alert('¡Gracias! Redirigiendo a WhatsApp...');
+    } else {
+      alert('¡Gracias por tu reserva! Te estamos redirigiendo a WhatsApp para confirmar.');
     }
   }
-});
+};
 
-// ===== SMOOTH SCROLL FOR ALL ANCHOR LINKS =====
-document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
-  anchor.addEventListener("click", function (e) {
+// Make modal functions global for HTML onclick
+window.openReservaModal = () => reservaModal.open();
+window.closeReservaModal = () => reservaModal.close();
+window.handleReserva = (e) => reservaModal.handleSubmit(e);
+
+// ===== SERVICE SELECTION =====
+window.selectService = (serviceName) => {
+  window.selectedService = serviceName;
+  reservaModal.open();
+};
+
+// ===== WHATSAPP =====
+window.openWhatsApp = () => {
+  const mensaje = '¡Hola! Me gustaría consultar sobre los servicios de la barbería.';
+  const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
+  window.open(url, '_blank');
+  
+  // Haptic feedback
+  if (navigator.vibrate) {
+    navigator.vibrate(10);
+  }
+};
+
+// ===== SMOOTH SCROLL =====
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function (e) {
     e.preventDefault();
-    const target = document.querySelector(this.getAttribute("href"));
+    const target = document.querySelector(this.getAttribute('href'));
     if (target) {
-      const offsetTop = target.offsetTop - 80;
+      const offset = utils.isMobile() ? 70 : 80;
+      const targetPosition = target.offsetTop - offset;
+      
       window.scrollTo({
-        top: offsetTop,
-        behavior: "smooth",
+        top: targetPosition,
+        behavior: 'smooth'
       });
     }
   });
 });
 
-// ===== INTERSECTION OBSERVER FOR SCROLL REVEAL =====
-function initScrollReveal() {
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: "0px 0px -100px 0px",
+// ===== INITIALIZATION =====
+const init = () => {
+  navigation.init();
+  animations.init();
+  testimonials.init();
+  reservaModal.init();
+  
+  // Mobile-specific optimizations
+  if (utils.isMobile() || utils.isTouchDevice()) {
+    mobileOptimizations.init();
+  }
+  
+  // Set CSS custom property for viewport height (fix iOS)
+  const setVH = () => {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
   };
+  
+  setVH();
+  window.addEventListener('resize', utils.debounce(setVH, 100));
+  
+  console.log('🔥 Barbería Premium - Sistema inicializado');
+  console.log(`📱 Móvil: ${utils.isMobile()}, Touch: ${utils.isTouchDevice()}`);
+};
 
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = "1";
-        entry.target.style.transform = "translateY(0)";
-      }
-    });
-  }, observerOptions);
-
-  // Observe elements for scroll reveal
-  document
-    .querySelectorAll(
-      ".service-card, .gallery-item, .about-feature-item, .contact-item",
-    )
-    .forEach((element) => {
-      element.style.opacity = "0";
-      element.style.transform = "translateY(30px)";
-      element.style.transition = "opacity 0.8s ease, transform 0.8s ease";
-      observer.observe(element);
-    });
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
 }
 
-// ===== BUTTON RIPPLE EFFECT =====
-document
-  .querySelectorAll("button, .btn-service, .btn-hero")
-  .forEach((button) => {
-    button.addEventListener("click", function (e) {
-      const ripple = document.createElement("span");
-      const rect = this.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height);
-      const x = e.clientX - rect.left - size / 2;
-      const y = e.clientY - rect.top - size / 2;
-
-      ripple.style.width = ripple.style.height = size + "px";
-      ripple.style.left = x + "px";
-      ripple.style.top = y + "px";
-      ripple.classList.add("ripple");
-
-      this.appendChild(ripple);
-
-      setTimeout(() => {
-        ripple.remove();
-      }, 600);
-    });
-  });
-
-// Add CSS for ripple effect
-const rippleStyle = document.createElement("style");
-rippleStyle.textContent = `
-  button, .btn-service, .btn-hero {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  .ripple {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
-    transform: scale(0);
-    animation: ripple-animation 0.6s ease-out;
-    pointer-events: none;
-  }
-  
-  @keyframes ripple-animation {
-    to {
-      transform: scale(4);
-      opacity: 0;
-    }
-  }
-`;
-document.head.appendChild(rippleStyle);
-
-// ===== PARALLAX EFFECT REMOVED =====
-// Parallax effect removed for better user experience
-
-// ===== LAZY LOADING FOR IMAGES =====
-if ("IntersectionObserver" in window) {
-  const imageObserver = new IntersectionObserver((entries, observer) => {
-    entries.forEach((entry) => {
+// ===== PERFORMANCE OPTIMIZATION =====
+// Lazy load images
+if ('IntersectionObserver' in window) {
+  const imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
       if (entry.isIntersecting) {
         const img = entry.target;
         if (img.dataset.src) {
           img.src = img.dataset.src;
-          img.removeAttribute("data-src");
+          img.removeAttribute('data-src');
           imageObserver.unobserve(img);
         }
       }
     });
+  }, {
+    rootMargin: utils.isMobile() ? '50px' : '100px'
   });
 
-  document.querySelectorAll("img[data-src]").forEach((img) => {
+  document.querySelectorAll('img[data-src]').forEach(img => {
     imageObserver.observe(img);
   });
 }
 
-// ===== GALLERY LIGHTBOX EFFECT =====
-document.querySelectorAll(".gallery-btn").forEach((btn) => {
-  btn.addEventListener("click", function (e) {
-    e.stopPropagation();
-    const galleryItem = this.closest(".gallery-item");
-    const img = galleryItem.querySelector("img");
-    if (img) {
-      // Create lightbox
-      const lightbox = document.createElement("div");
-      lightbox.className = "lightbox";
-      lightbox.innerHTML = `
-        <div class="lightbox-content">
-          <img src="${img.src}" alt="${img.alt}">
-          <button class="lightbox-close">&times;</button>
-        </div>
-      `;
-
-      document.body.appendChild(lightbox);
-      document.body.style.overflow = "hidden";
-
-      // Add lightbox styles
-      if (!document.getElementById("lightbox-styles")) {
-        const lightboxStyles = document.createElement("style");
-        lightboxStyles.id = "lightbox-styles";
-        lightboxStyles.textContent = `
-          .lightbox {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 10000;
-            animation: fadeIn 0.3s ease;
-            cursor: zoom-out;
-          }
-          
-          .lightbox-content {
-            position: relative;
-            max-width: 90%;
-            max-height: 90%;
-          }
-          
-          .lightbox-content img {
-            max-width: 100%;
-            max-height: 90vh;
-            object-fit: contain;
-            border-radius: 10px;
-            box-shadow: 0 10px 50px rgba(0, 0, 0, 0.5);
-          }
-          
-          .lightbox-close {
-            position: absolute;
-            top: -50px;
-            right: 0;
-            background: rgba(212, 175, 55, 0.9);
-            color: #0a0a0a;
-            border: none;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            font-size: 2rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-          }
-          
-          .lightbox-close:hover {
-            background: #f4d03f;
-            transform: scale(1.1) rotate(90deg);
-          }
-          
-          @keyframes fadeIn {
-            from {
-              opacity: 0;
-            }
-            to {
-              opacity: 1;
-            }
-          }
-        `;
-        document.head.appendChild(lightboxStyles);
-      }
-
-      // Close lightbox
-      lightbox.addEventListener("click", function () {
-        lightbox.remove();
-        document.body.style.overflow = "";
-      });
-
-      lightbox
-        .querySelector(".lightbox-close")
-        .addEventListener("click", function (e) {
-          e.stopPropagation();
-          lightbox.remove();
-          document.body.style.overflow = "";
-        });
-    }
-  });
-});
-
-// ===== SCROLL INDICATOR CLICK =====
-const scrollIndicator = document.querySelector(".scroll-indicator");
-if (scrollIndicator) {
-  scrollIndicator.addEventListener("click", () => {
-    const servicesSection = document.getElementById("servicios");
-    if (servicesSection) {
-      servicesSection.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  });
-}
-
-// ===== PERFORMANCE MONITORING =====
-window.addEventListener("load", function () {
-  const loadTime =
-    performance.timing.loadEventEnd - performance.timing.navigationStart;
-  console.log(
-    `%c✂️ Barbería Premium`,
-    "color: #d4af37; font-size: 24px; font-weight: bold;",
-  );
-  console.log(
-    `%cPágina cargada en ${loadTime}ms`,
-    "color: #e0e0e0; font-size: 14px;",
-  );
-  console.log(
-    `%cTu mejor versión empieza aquí`,
-    "color: #d4af37; font-size: 12px; font-style: italic;",
-  );
-});
-
-// ===== ACTIVE SECTION HIGHLIGHTING IN NAV =====
-const sections = document.querySelectorAll("section[id]");
-
-function highlightNavLink() {
-  const scrollY = window.pageYOffset;
-
-  sections.forEach((section) => {
-    const sectionHeight = section.offsetHeight;
-    const sectionTop = section.offsetTop - 100;
-    const sectionId = section.getAttribute("id");
-    const navLink = document.querySelector(`a[href="#${sectionId}"]`);
-
-    if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-      navLink?.classList.add("active");
-    } else {
-      navLink?.classList.remove("active");
-    }
-  });
-}
-
-window.addEventListener("scroll", highlightNavLink);
-
-// ===== CURSOR EFFECT REMOVED =====
-// Custom cursor removed for better usability and compatibility
-
-// ===== FORM VALIDATION (if you add a contact form later) =====
-function validateForm(form) {
-  const inputs = form.querySelectorAll("input[required], textarea[required]");
-  let isValid = true;
-
-  inputs.forEach((input) => {
-    if (!input.value.trim()) {
-      isValid = false;
-      input.style.borderColor = "#ff4444";
-      input.style.animation = "shake 0.5s";
-    } else {
-      input.style.borderColor = "";
-      input.style.animation = "";
-    }
-  });
-
-  return isValid;
-}
-
-// Add shake animation
-const shakeAnimation = document.createElement("style");
-shakeAnimation.textContent = `
-  @keyframes shake {
-    0%, 100% { transform: translateX(0); }
-    25% { transform: translateX(-10px); }
-    75% { transform: translateX(10px); }
-  }
-`;
-document.head.appendChild(shakeAnimation);
-
-// ===== ACCESSIBILITY ENHANCEMENTS REMOVED =====
-// Removed skip-to-main-content link as requested.
-
-console.log("🎨 All scripts initialized successfully!");
-
-// ===== CONFIGURACIÓN DEMO =====
-const CONFIG_DEMO = {
-  numeroWhatsApp: "5491112345678", // Número de ejemplo
-  diasAdelanto: 30,
-  duracionTurno: 60,
-};
-
-// ===== RESERVAS DEMO (Simuladas) =====
-function inicializarReservasDemo() {
-  // Si no hay reservas guardadas, crear algunas de ejemplo
-  if (!localStorage.getItem("reservasDemo")) {
-    const reservasEjemplo = [
-      { fecha: "2026-01-30", horario: "10:00", nombre: "Carlos Martínez" },
-      { fecha: "2026-01-30", horario: "15:00", nombre: "Ana García" },
-      { fecha: "2026-01-31", horario: "09:00", nombre: "Roberto Díaz" },
-      { fecha: "2026-01-31", horario: "11:00", nombre: "María López" },
-      { fecha: "2026-02-01", horario: "14:00", nombre: "Juan Pérez" },
-    ];
-    localStorage.setItem("reservasDemo", JSON.stringify(reservasEjemplo));
-  }
-}
-
-function getReservasOcupadas() {
-  const reservas = localStorage.getItem("reservasDemo");
-  return reservas ? JSON.parse(reservas) : [];
-}
-
-function agregarReservaDemo(datos) {
-  const reservas = getReservasOcupadas();
-  reservas.push({
-    fecha: datos.fecha,
-    horario: datos.horario,
-    nombre: datos.nombre,
-    servicio: datos.servicio,
-    telefono: datos.telefono,
-    timestamp: new Date().toISOString(),
-  });
-  localStorage.setItem("reservasDemo", JSON.stringify(reservas));
-}
-
-function estaDisponible(fecha, horario) {
-  const reservas = getReservasOcupadas();
-  return !reservas.some((r) => r.fecha === fecha && r.horario === horario);
-}
-
-// ===== MODAL DE RESERVA =====
-function abrirFormularioReserva() {
-  inicializarReservasDemo();
-
-  const modal = document.createElement("div");
-  modal.className = "modal-reserva";
-  modal.innerHTML = `
-    <div class="modal-content">
-      <button class="modal-close" onclick="cerrarModalReserva()">&times;</button>
-      
-      <div class="modal-header">
-        <h2>Reservá tu Turno</h2>
-      </div>
-      
-      <form id="form-reserva" onsubmit="procesarReservaDemo(event)">
-        <div class="form-group">
-          <label>Nombre Completo</label>
-          <input type="text" name="nombre" required placeholder="Juan Pérez">
-        </div>
-        
-        <div class="form-group">
-          <label>Servicio</label>
-          <select name="servicio" required>
-            <option value="">Seleccionar servicio</option>
-            <option value="Combo Completo - $12.000">Combo Completo - $12.000</option>
-            <option value="Corte Premium - $8.000">Corte Premium - $8.000</option>
-            <option value="Barba Profesional - $6.000">Barba Profesional - $6.000</option>
-            <option value="Color & Tinte - $10.000">Color & Tinte - $10.000</option>
-            <option value="Tratamiento Capilar - $7.000">Tratamiento Capilar - $7.000</option>
-          </select>
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label>Fecha</label>
-            <input type="date" 
-                   name="fecha" 
-                   id="fecha-reserva"
-                   required 
-                   min="${getFechaMinima()}"
-                   max="${getFechaMaxima()}"
-                   onchange="actualizarHorariosDisponibles()">
-          </div>
-          
-          <div class="form-group">
-            <label>Horario</label>
-            <select name="horario" id="horario-reserva" required disabled>
-              <option value="">Primero selecciona una fecha</option>
-            </select>
-          </div>
-        </div>
-        
-        <div class="disponibilidad-info" id="disponibilidad-info">
-          <div class="info-box">
-            Selecciona una fecha para ver los horarios disponibles
-          </div>
-        </div>
-        
-        <div class="form-group">
-          <label>Teléfono</label>
-          <input type="tel" 
-                 name="telefono" 
-                 required 
-                 placeholder="+54 9 11 1234-5678"
-                 pattern="[+0-9 -]+">
-        </div>
-        
-        <div class="form-group">
-          <label>Comentarios (opcional)</label>
-          <textarea name="comentarios" 
-                    rows="3" 
-                    placeholder="Alguna preferencia especial..."></textarea>
-        </div>
-        
-        <button type="submit" class="btn-submit" id="btn-enviar">
-          <i class="fab fa-whatsapp"></i>
-          <span>Confirmar Reserva</span>
-        </button>
-        
-        <div class="form-footer">
-          <small>Recibirás confirmación inmediata por WhatsApp</small>
-        </div>
-      </form>
-    </div>
-  `;
-
-  document.body.appendChild(modal);
-  document.body.style.overflow = "hidden";
-  setTimeout(() => modal.classList.add("active"), 10);
-}
-
-function cerrarModalReserva() {
-  const modal = document.querySelector(".modal-reserva");
-  if (modal) {
-    modal.classList.remove("active");
-    setTimeout(() => {
-      modal.remove();
-      document.body.style.overflow = "";
-    }, 300);
-  }
-}
-
-// ===== ACTUALIZAR HORARIOS DISPONIBLES =====
-function actualizarHorariosDisponibles() {
-  const fechaInput = document.getElementById("fecha-reserva");
-  const horarioSelect = document.getElementById("horario-reserva");
-  const infoDiv = document.getElementById("disponibilidad-info");
-
-  if (!fechaInput.value) return;
-
-  const fecha = fechaInput.value;
-  const fechaObj = new Date(fecha + "T00:00:00");
-  const diaSemana = fechaObj.getDay();
-  const nombreDia = fechaObj.toLocaleDateString("es-AR", { weekday: "long" });
-
-  // Verificar si es domingo (cerrado)
-  if (diaSemana === 0) {
-    horarioSelect.innerHTML = '<option value="">Cerrado los domingos</option>';
-    horarioSelect.disabled = true;
-    infoDiv.innerHTML = `
-      <div class="alert alert-warning">
-        <i class="fas fa-exclamation-triangle"></i>
-        No abrimos los domingos. Por favor elige otro día.
-      </div>
-    `;
-    return;
-  }
-
-  horarioSelect.disabled = false;
-
-  // Horarios según el día
-  let horarios;
-  if (diaSemana === 6) {
-    // Sábado
-    horarios = [
-      "09:00",
-      "10:00",
-      "11:00",
-      "12:00",
-      "13:00",
-      "14:00",
-      "15:00",
-      "16:00",
-      "17:00",
-    ];
-  } else {
-    // Lunes a Viernes
-    horarios = [
-      "09:00",
-      "10:00",
-      "11:00",
-      "12:00",
-      "14:00",
-      "15:00",
-      "16:00",
-      "17:00",
-      "18:00",
-      "19:00",
-    ];
-  }
-
-  // Filtrar horarios disponibles
-  const horariosDisponibles = [];
-  const horariosOcupados = [];
-
-  horarios.forEach((horario) => {
-    if (estaDisponible(fecha, horario)) {
-      horariosDisponibles.push(horario);
-    } else {
-      horariosOcupados.push(horario);
-    }
-  });
-
-  // Actualizar select
-  horarioSelect.innerHTML = '<option value="">Seleccionar horario</option>';
-
-  if (horariosDisponibles.length === 0) {
-    horarioSelect.innerHTML =
-      '<option value="">😔 No hay turnos disponibles</option>';
-    horarioSelect.disabled = true;
-    infoDiv.innerHTML = `
-      <div class="alert alert-error">
-        <i class="fas fa-calendar-times"></i>
-        <div>
-          <strong>No hay turnos disponibles para ${nombreDia}</strong>
-          <p>Todos los horarios están ocupados. Prueba con otra fecha.</p>
-        </div>
-      </div>
-    `;
-  } else {
-    horariosDisponibles.forEach((horario) => {
-      const option = document.createElement("option");
-      option.value = horario;
-      option.textContent = horario;
-      horarioSelect.appendChild(option);
-    });
-
-    const disponibles = horariosDisponibles.length;
-    const total = horarios.length;
-    const porcentaje = Math.round((disponibles / total) * 100);
-
-    let alertClass = "alert-success";
-    let icon = "fa-check-circle";
-    if (porcentaje < 30) {
-      alertClass = "alert-warning";
-      icon = "fa-exclamation-circle";
-    }
-
-    infoDiv.innerHTML = `
-      <div class="alert ${alertClass}">
-        <i class="fas ${icon}"></i>
-        <div>
-          <strong>${disponibles} de ${total} horarios disponibles</strong>
-          ${
-            horariosOcupados.length > 0
-              ? `<p style="font-size: 0.85rem; margin-top: 0.3rem;">
-              Ocupados: ${horariosOcupados.join(", ")}
-            </p>`
-              : ""
-          }
-        </div>
-      </div>
-      <div class="horarios-grid">
-        ${horarios
-          .map(
-            (h) => `
-          <div class="horario-item ${estaDisponible(fecha, h) ? "disponible" : "ocupado"}">
-            <span class="hora">${h}</span>
-            <span class="estado">${estaDisponible(fecha, h) ? "Disponible" : "Ocupado"}</span>
-          </div>
-        `,
-          )
-          .join("")}
-      </div>
-    `;
-  }
-}
-
-// ===== PROCESAR RESERVA DEMO =====
-function procesarReservaDemo(event) {
-  event.preventDefault();
-
-  const btnEnviar = document.getElementById("btn-enviar");
-  const textoOriginal = btnEnviar.innerHTML;
-  btnEnviar.disabled = true;
-  btnEnviar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-
-  const form = event.target;
-  const datos = {
-    nombre: form.nombre.value.trim(),
-    servicio: form.servicio.value,
-    fecha: form.fecha.value,
-    horario: form.horario.value,
-    telefono: form.telefono.value.trim(),
-    comentarios: form.comentarios.value.trim(),
-  };
-
-  // Verificar disponibilidad una vez más
-  if (!estaDisponible(datos.fecha, datos.horario)) {
-    mostrarNotificacion(
-      "Este horario acaba de ser reservado. Por favor elige otro.",
-      "error",
+// Prevenir zoom accidental en inputs en iOS
+if (utils.isMobile() && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
+  const viewport = document.querySelector('meta[name=viewport]');
+  if (viewport) {
+    viewport.setAttribute('content', 
+      'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover'
     );
-    btnEnviar.disabled = false;
-    btnEnviar.innerHTML = textoOriginal;
-    actualizarHorariosDisponibles();
-    return;
   }
-
-  // Simular delay de procesamiento
-  setTimeout(() => {
-    // Guardar la reserva
-    agregarReservaDemo(datos);
-
-    mostrarNotificacion("Reserva confirmada exitosamente", "success");
-
-    // Mostrar confirmación
-    mostrarConfirmacionReserva(datos);
-
-    // Simular envío a WhatsApp (en demo solo se abre)
-    setTimeout(() => {
-      enviarPorWhatsAppDemo(datos);
-    }, 1500);
-  }, 1000);
 }
 
-function enviarPorWhatsAppDemo(datos) {
-  const fechaFormateada = new Date(
-    datos.fecha + "T00:00:00",
-  ).toLocaleDateString("es-AR", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+// Service Worker registration (optional - for PWA)
+if ('serviceWorker' in navigator && !utils.isMobile()) {
+  window.addEventListener('load', () => {
+    // Uncomment if you have a service worker
+    // navigator.serviceWorker.register('/sw.js').catch(() => {});
   });
-
-  const mensaje = `
-*NUEVA RESERVA - BARBERÍA PREMIUM*
-
-*Nombre:* ${datos.nombre}
-*Servicio:* ${datos.servicio}
-*Fecha:* ${fechaFormateada}
-*Horario:* ${datos.horario}
-*Teléfono:* ${datos.telefono}
-${datos.comentarios ? `\n*Comentarios:* ${datos.comentarios}` : ""}
-
-_Reserva realizada desde la web_
-  `.trim();
-
-  const url = `https://wa.me/${CONFIG_DEMO.numeroWhatsApp}?text=${encodeURIComponent(mensaje)}`;
-  window.open(url, "_blank");
 }
-
-// ===== CONFIRMACIÓN VISUAL =====
-function mostrarConfirmacionReserva(datos) {
-  const modal = document.querySelector(".modal-content");
-
-  const fechaFormateada = new Date(
-    datos.fecha + "T00:00:00",
-  ).toLocaleDateString("es-AR", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
-
-  modal.innerHTML = `
-    <div class="confirmacion-reserva">
-      <div class="confirmacion-icon">
-        <i class="fas fa-check-circle"></i>
-      </div>
-      <h2>¡Reserva Confirmada!</h2>
-      <p class="confirmacion-subtitle">Tu turno ha sido agendado exitosamente</p>
-      
-      <div class="confirmacion-detalles">
-        <div class="detalle-item">
-          <i class="fas fa-user"></i>
-          <div>
-            <span class="label">Cliente</span>
-            <span class="value">${datos.nombre}</span>
-          </div>
-        </div>
-        
-        <div class="detalle-item">
-          <i class="fas fa-cut"></i>
-          <div>
-            <span class="label">Servicio</span>
-            <span class="value">${datos.servicio}</span>
-          </div>
-        </div>
-        
-        <div class="detalle-item highlight">
-          <i class="fas fa-calendar-check"></i>
-          <div>
-            <span class="label">Fecha y Hora</span>
-            <span class="value">${fechaFormateada} a las ${datos.horario}</span>
-          </div>
-        </div>
-        
-        <div class="detalle-item">
-          <i class="fas fa-phone"></i>
-          <div>
-            <span class="label">Teléfono</span>
-            <span class="value">${datos.telefono}</span>
-          </div>
-        </div>
-      </div>
-      
-      <div class="confirmacion-mensaje">
-        <i class="fab fa-whatsapp"></i>
-        <p>Te estamos redirigiendo a WhatsApp para confirmar tu reserva...</p>
-      </div>
-      
-      <button class="btn-cerrar" onclick="cerrarModalReserva()">
-        <i class="fas fa-times"></i>
-        Cerrar
-      </button>
-    </div>
-  `;
-}
-
-// ===== UTILIDADES =====
-function getFechaMinima() {
-  const hoy = new Date();
-  hoy.setDate(hoy.getDate() + 1);
-  return hoy.toISOString().split("T")[0];
-}
-
-function getFechaMaxima() {
-  const hoy = new Date();
-  hoy.setDate(hoy.getDate() + CONFIG_DEMO.diasAdelanto);
-  return hoy.toISOString().split("T")[0];
-}
-
-function mostrarNotificacion(mensaje, tipo = "info") {
-  const notif = document.createElement("div");
-  notif.className = `notificacion notif-${tipo}`;
-
-  const iconos = {
-    success: "fa-check-circle",
-    error: "fa-times-circle",
-    warning: "fa-exclamation-triangle",
-    info: "fa-info-circle",
-  };
-
-  notif.innerHTML = `
-    <i class="fas ${iconos[tipo]}"></i>
-    <span>${mensaje}</span>
-  `;
-
-  document.body.appendChild(notif);
-  setTimeout(() => notif.classList.add("show"), 100);
-
-  setTimeout(() => {
-    notif.classList.remove("show");
-    setTimeout(() => notif.remove(), 300);
-  }, 4000);
-}
-
-// ===== FUNCIÓN PARA BOTONES DE RESERVA =====
-function scrollToReservar() {
-  abrirFormularioReserva();
-}
-
-// ===== INICIALIZAR =====
-// Ya inicializado en el DOMContentLoaded principal (línea 75+)

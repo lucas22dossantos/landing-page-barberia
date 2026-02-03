@@ -35,7 +35,7 @@ const utils = {
 
   throttle(func, limit) {
     let inThrottle;
-    return function(...args) {
+    return function (...args) {
       if (!inThrottle) {
         func.apply(this, args);
         inThrottle = true;
@@ -60,15 +60,15 @@ const utils = {
 
   getAvailableHours(date) {
     const day = new Date(date).getDay();
-    
+
     // Domingo cerrado
     if (day === 0) return [];
-    
+
     // Sábado
     if (day === 6) {
       return ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
     }
-    
+
     // Lunes a Viernes
     return ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
   },
@@ -95,23 +95,12 @@ const elements = {
 // ===== MOBILE OPTIMIZATIONS =====
 const mobileOptimizations = {
   init() {
-    this.preventZoom();
     this.handleTouchEvents();
     this.optimizeScrollPerformance();
     this.handleOrientation();
   },
 
-  preventZoom() {
-    // Prevenir zoom en double-tap en iOS
-    let lastTouchEnd = 0;
-    document.addEventListener('touchend', (e) => {
-      const now = Date.now();
-      if (now - lastTouchEnd <= 300) {
-        e.preventDefault();
-      }
-      lastTouchEnd = now;
-    }, { passive: false });
-  },
+  // func preventZoom elimated for accessibility
 
   handleTouchEvents() {
     // Mejorar scroll en iOS
@@ -130,7 +119,7 @@ const mobileOptimizations = {
   optimizeScrollPerformance() {
     // Usar requestAnimationFrame para scroll suave
     let ticking = false;
-    
+
     window.addEventListener('scroll', () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
@@ -149,7 +138,7 @@ const mobileOptimizations = {
       if (state.isMenuOpen) {
         elements.navToggle.click();
       }
-      
+
       // Recalcular alturas
       setTimeout(() => {
         document.documentElement.style.setProperty(
@@ -168,7 +157,7 @@ const navigation = {
     this.handleToggle();
     this.handleLinks();
     this.handleClickOutside();
-    
+
     // Usar throttle en lugar de debounce para mejor respuesta en móvil
     if (utils.isMobile()) {
       window.addEventListener('scroll', utils.throttle(() => this.handleScroll(), 100), { passive: true });
@@ -180,7 +169,7 @@ const navigation = {
   handleScroll() {
     const scrolled = window.pageYOffset > CONFIG.scrollThreshold;
     elements.nav.classList.toggle('scrolled', scrolled);
-    
+
     // Update progress bar con throttle
     const winScroll = document.documentElement.scrollTop;
     const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
@@ -211,7 +200,7 @@ const navigation = {
     elements.navToggle.classList.toggle('active', state.isMenuOpen);
     elements.navMenu.classList.toggle('active', state.isMenuOpen);
     document.body.style.overflow = state.isMenuOpen ? 'hidden' : '';
-    
+
     // Agregar haptic feedback en dispositivos compatibles
     if (navigator.vibrate) {
       navigator.vibrate(10);
@@ -225,23 +214,23 @@ const navigation = {
         e.preventDefault();
         const target = link.getAttribute('href');
         const section = document.querySelector(target);
-        
+
         if (section) {
           // Offset para la navegación fija
           const offset = utils.isMobile() ? 70 : 80;
           const targetPosition = section.offsetTop - offset;
-          
+
           window.scrollTo({
             top: targetPosition,
             behavior: 'smooth'
           });
         }
-        
+
         // Close mobile menu
         if (state.isMenuOpen) {
           this.toggleMenu();
         }
-        
+
         // Haptic feedback
         if (navigator.vibrate) {
           navigator.vibrate(5);
@@ -252,9 +241,9 @@ const navigation = {
 
   handleClickOutside() {
     document.addEventListener('click', (e) => {
-      if (state.isMenuOpen && 
-          !elements.navMenu.contains(e.target) && 
-          !elements.navToggle.contains(e.target)) {
+      if (state.isMenuOpen &&
+        !elements.navMenu.contains(e.target) &&
+        !elements.navToggle.contains(e.target)) {
         this.toggleMenu();
       }
     });
@@ -324,12 +313,13 @@ const animations = {
 const testimonials = {
   init() {
     this.elements = {
-      items: document.querySelectorAll('.testimonial'),
-      dots: document.querySelectorAll('.dot'),
-      slider: document.querySelector('.testimonials__slider')
+      items: document.querySelectorAll('.testimonial-card'),
+      dotsContainer: document.getElementById('testimonialDots'),
+      slider: document.querySelector('.testimonials__track')
     };
-    
+
     if (this.elements.items.length > 0) {
+      this.generateDots();
       this.show(0);
       this.startAutoRotate();
       this.handleKeyboard();
@@ -337,27 +327,44 @@ const testimonials = {
     }
   },
 
+  generateDots() {
+    if (!this.elements.dotsContainer) return;
+    this.elements.dotsContainer.innerHTML = '';
+    this.elements.items.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.setAttribute('aria-label', `Ver testimonio ${index + 1}`);
+      dot.onclick = () => {
+        this.show(index);
+        this.stopAutoRotate();
+      };
+      this.elements.dotsContainer.appendChild(dot);
+    });
+    this.elements.dots = this.elements.dotsContainer.querySelectorAll('button');
+  },
+
   show(index) {
     this.elements.items.forEach((item, i) => {
       item.classList.toggle('active', i === index);
     });
-    
-    this.elements.dots.forEach((dot, i) => {
-      dot.classList.toggle('active', i === index);
-    });
-    
+
+    if (this.elements.dots && this.elements.dots.length) {
+      this.elements.dots.forEach((dot, i) => {
+        dot.classList.toggle('active', i === index);
+      });
+    }
+
     state.currentTestimonial = index;
   },
 
   change(direction) {
     const total = this.elements.items.length;
     let newIndex = state.currentTestimonial + direction;
-    
+
     if (newIndex < 0) newIndex = total - 1;
     if (newIndex >= total) newIndex = 0;
-    
+
     this.show(newIndex);
-    
+
     // Haptic feedback
     if (navigator.vibrate) {
       navigator.vibrate(5);
@@ -425,6 +432,40 @@ const testimonials = {
 // Make testimonial functions global for HTML onclick
 window.changeTestimonial = (direction) => testimonials.change(direction);
 window.goToTestimonial = (index) => testimonials.show(index);
+window.previousTestimonial = () => testimonials.change(-1);
+window.nextTestimonial = () => testimonials.change(1);
+
+// ===== BOOKING SYSTEM (MOCK) =====
+const BookingSystem = {
+  // Simulamos algunos turnos ocupados
+  occupiedSlots: [
+    { date: '2026-02-15', hours: ['10:00', '15:00', '16:00'] },
+    { date: '2026-02-16', hours: ['09:00', '10:00', '11:00'] },
+    { date: '2026-02-17', hours: ['14:00', '18:00'] }
+  ],
+
+  getAvailableHours(date) {
+    const day = new Date(date + 'T00:00:00').getDay();
+    let hours = [];
+
+    // Lógica básica de días
+    if (day === 0) return []; // Domingo cerrado
+
+    if (day === 6) { // Sábado
+      hours = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+    } else { // Lunes a Viernes
+      hours = ['09:00', '10:00', '11:00', '12:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00'];
+    }
+
+    // Filtrar ocupados
+    const occupied = this.occupiedSlots.find(slot => slot.date === date);
+    if (occupied) {
+      hours = hours.filter(hour => !occupied.hours.includes(hour));
+    }
+
+    return hours;
+  }
+};
 
 // ===== RESERVA MODAL =====
 const reservaModal = {
@@ -439,8 +480,13 @@ const reservaModal = {
 
     // Set min and max dates
     const today = new Date();
-    today.setDate(today.getDate() + 1);
-    fechaInput.min = today.toISOString().split('T')[0];
+    // today.setDate(today.getDate() + 1); // Permitir hoy? Mejor mañana para prevenir errores de hora pasada
+    // Si queremos ser precisos deberíamos validar hora actual vs hora turno.
+    // Por simplicidad dejamos mañana como min.
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    fechaInput.min = tomorrow.toISOString().split('T')[0];
 
     const maxDate = new Date();
     maxDate.setDate(maxDate.getDate() + CONFIG.reservaDaysAhead);
@@ -458,14 +504,17 @@ const reservaModal = {
 
     horarioSelect.innerHTML = '<option value="">Seleccionar horario</option>';
 
-    if (!utils.isWeekday(date)) {
-      horarioSelect.innerHTML = '<option value="">Cerrado los domingos</option>';
-      horarioSelect.disabled = true;
+    if (!date) return;
+
+    const hours = BookingSystem.getAvailableHours(date);
+
+    if (hours.length === 0) {
+      const option = document.createElement('option');
+      option.textContent = "No hay turnos disponibles";
+      option.disabled = true;
+      horarioSelect.appendChild(option);
       return;
     }
-
-    const hours = utils.getAvailableHours(date);
-    horarioSelect.disabled = false;
 
     hours.forEach(hour => {
       const option = document.createElement('option');
@@ -477,15 +526,52 @@ const reservaModal = {
 
   setupFormHandlers() {
     const servicioSelect = document.getElementById('servicio');
-    if (servicioSelect && window.selectedService) {
-      servicioSelect.value = window.selectedService;
+    if (servicioSelect) {
+      if (window.selectedService) {
+        servicioSelect.value = window.selectedService;
+      }
+      // Listener para actualizar precio
+      servicioSelect.addEventListener('change', () => this.updateSummary());
+      // Inicializar si ya hay valor
+      this.updateSummary();
+    }
+  },
+
+  updateSummary() {
+    const servicioSelect = document.getElementById('servicio');
+    const summaryService = document.getElementById('summaryService');
+    const summaryPrice = document.getElementById('summaryPrice');
+
+    if (!servicioSelect || !summaryService || !summaryPrice) return;
+
+    const selectedOption = servicioSelect.options[servicioSelect.selectedIndex];
+
+    if (servicioSelect.value) {
+      // Extraer nombre y precio del texto de la opción (ej: "Corte - $8.000")
+      const text = selectedOption.text;
+      const parts = text.split(' - ');
+
+      if (parts.length >= 2) {
+        summaryService.textContent = parts[0];
+        summaryPrice.textContent = parts[1];
+
+        // Animación sutil
+        summaryPrice.style.transform = 'scale(1.1)';
+        setTimeout(() => summaryPrice.style.transform = 'scale(1)', 200);
+      } else {
+        summaryService.textContent = text;
+        summaryPrice.textContent = '-';
+      }
+    } else {
+      summaryService.textContent = 'Seleccione un servicio';
+      summaryPrice.textContent = '-';
     }
   },
 
   open() {
     elements.reservaModal.classList.add('active');
     document.body.style.overflow = 'hidden';
-    
+
     // Focus en el primer input en desktop
     if (!utils.isMobile()) {
       setTimeout(() => {
@@ -493,7 +579,7 @@ const reservaModal = {
         if (firstInput) firstInput.focus();
       }, 300);
     }
-    
+
     // Haptic feedback
     if (navigator.vibrate) {
       navigator.vibrate(10);
@@ -503,7 +589,7 @@ const reservaModal = {
   close() {
     elements.reservaModal.classList.remove('active');
     document.body.style.overflow = '';
-    
+
     // Haptic feedback
     if (navigator.vibrate) {
       navigator.vibrate(5);
@@ -512,7 +598,7 @@ const reservaModal = {
 
   handleSubmit(event) {
     event.preventDefault();
-    
+
     const formData = new FormData(event.target);
     const data = {
       nombre: formData.get('nombre'),
@@ -542,7 +628,7 @@ _Reserva realizada desde la web_
 
     const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank');
-    
+
     this.close();
     this.showConfirmation();
   },
@@ -552,7 +638,7 @@ _Reserva realizada desde la web_
     if (navigator.vibrate) {
       navigator.vibrate([10, 50, 10]);
     }
-    
+
     // Simple alert - could be replaced with a nicer modal
     if (utils.isMobile()) {
       alert('¡Gracias! Redirigiendo a WhatsApp...');
@@ -578,7 +664,7 @@ window.openWhatsApp = () => {
   const mensaje = '¡Hola! Me gustaría consultar sobre los servicios de la barbería.';
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
   window.open(url, '_blank');
-  
+
   // Haptic feedback
   if (navigator.vibrate) {
     navigator.vibrate(10);
@@ -593,7 +679,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     if (target) {
       const offset = utils.isMobile() ? 70 : 80;
       const targetPosition = target.offsetTop - offset;
-      
+
       window.scrollTo({
         top: targetPosition,
         behavior: 'smooth'
@@ -608,23 +694,23 @@ const init = () => {
   animations.init();
   testimonials.init();
   reservaModal.init();
-  
+
   // Mobile-specific optimizations
   if (utils.isMobile() || utils.isTouchDevice()) {
     mobileOptimizations.init();
   }
-  
+
   // Set CSS custom property for viewport height (fix iOS)
   const setVH = () => {
     const vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
   };
-  
+
   setVH();
   window.addEventListener('resize', utils.debounce(setVH, 100));
-  
-  console.log('🔥 Barbería Premium - Sistema inicializado');
-  console.log(`📱 Móvil: ${utils.isMobile()}, Touch: ${utils.isTouchDevice()}`);
+
+  setVH();
+  window.addEventListener('resize', utils.debounce(setVH, 100));
 };
 
 // Initialize when DOM is ready
@@ -661,7 +747,7 @@ if ('IntersectionObserver' in window) {
 if (utils.isMobile() && /iPhone|iPad|iPod/.test(navigator.userAgent)) {
   const viewport = document.querySelector('meta[name=viewport]');
   if (viewport) {
-    viewport.setAttribute('content', 
+    viewport.setAttribute('content',
       'width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover'
     );
   }

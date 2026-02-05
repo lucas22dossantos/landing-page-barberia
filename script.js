@@ -675,8 +675,19 @@ const reservaModal = {
       submitBtn.disabled = false;
       submitBtn.innerHTML = originalBtnText;
 
-      window.lastBookingData = data; // Guardar para WhatsApp opcional
+      window.lastBookingData = data;
+
+      // Automatic WhatsApp Notification
+      const whatsappMsg = SistemaReservas.generarMensajeWhatsApp({ ...data, id: response.bookingId });
+      const whatsappUrl = `https://wa.me/${RESERVAS_CONFIG.whatsappNumber}?text=${whatsappMsg}`;
+
+      // Mostrar confirmación en el modal de éxito
       this.showConfirmation(data, response.bookingId);
+
+      // Abrir WhatsApp automáticamente después de un pequeño delay
+      setTimeout(() => {
+        window.open(whatsappUrl, '_blank');
+      }, 1500);
     });
   },
 

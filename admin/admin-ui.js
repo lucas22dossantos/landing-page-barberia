@@ -133,6 +133,7 @@ const AdminUI = {
               <th>Cliente</th>
               <th>Barbero</th>
               <th>Servicio</th>
+              <th>Nota</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
@@ -154,9 +155,17 @@ const AdminUI = {
       <tr>
         <td>${fechaFmt}</td>
         <td><strong>${r.horario}</strong></td>
-        <td>${r.nombreCliente}<br><small>${r.telefono}</small></td>
+        <td>
+          <div class="client-info">
+            <span class="client-name">${r.nombre}</span>
+            <span class="client-phone">${r.telefono}</span>
+          </div>
+        </td>
         <td><span class="badge badge-confirmada">${r.barbero || 'N/A'}</span></td>
         <td>${r.servicio}</td>
+        <td>
+          <div class="client-note">${r.comentarios || '<span style="color: #444; font-style: normal;">-</span>'}</div>
+        </td>
         <td><span class="${badgeClass}">${r.estado}</span></td>
         <td><div class="action-buttons">${acciones}</div></td>
       </tr>
@@ -166,17 +175,17 @@ const AdminUI = {
   renderAcciones(r) {
     if (r.estado === 'pendiente') {
       return `
-        <button class="btn-small btn-confirm" onclick="AdminUI.cambiarEstado('${r.id}', 'confirmada')"><i class="fas fa-check"></i></button>
-        <button class="btn-small btn-cancel" onclick="AdminUI.cambiarEstado('${r.id}', 'cancelada')"><i class="fas fa-times"></i></button>
+        <button class="btn-icon btn-icon-check" title="Confirmar" onclick="AdminUI.cambiarEstado('${r.id}', 'confirmada')"><i class="fas fa-check"></i></button>
+        <button class="btn-icon btn-icon-times" title="Cancelar" onclick="AdminUI.cambiarEstado('${r.id}', 'cancelada')"><i class="fas fa-times"></i></button>
       `;
     }
     if (r.estado === 'confirmada') {
       return `
-        <button class="btn-small btn-complete" onclick="AdminUI.cambiarEstado('${r.id}', 'completada')"><i class="fas fa-check-double"></i></button>
-        <button class="btn-small btn-cancel" onclick="AdminUI.cambiarEstado('${r.id}', 'cancelada')"><i class="fas fa-times"></i></button>
+        <button class="btn-icon btn-icon-check" title="Completar" onclick="AdminUI.cambiarEstado('${r.id}', 'completada')"><i class="fas fa-check-double"></i></button>
+        <button class="btn-icon btn-icon-times" title="Cancelar" onclick="AdminUI.cambiarEstado('${r.id}', 'cancelada')"><i class="fas fa-times"></i></button>
       `;
     }
-    return '<small>Sin acciones</small>';
+    return '<small style="color: #444;">Finalizada</small>';
   },
 
   cambiarEstado(id, nuevoEstado) {
@@ -187,16 +196,44 @@ const AdminUI = {
   },
 
   cambiarTab(tab) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    event.target.closest('.tab').classList.add('active');
+    // UI Updates
+    document.querySelectorAll('.nav-item').forEach(t => t.classList.remove('active'));
+    event.target.closest('.nav-item').classList.add('active');
+
     document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
 
-    const tabMap = { 'hoy': 'tabHoy', 'todas': 'tabTodas', 'pendientes': 'tabPendientes', 'estadisticas': 'tabEstadisticas' };
-    document.getElementById(tabMap[tab]).classList.add('active');
+    const tabMap = {
+      'hoy': { id: 'tabHoy', title: 'Agenda de Hoy' },
+      'todas': { id: 'tabTodas', title: 'Todas las Reservas' },
+      'pendientes': { id: 'tabPendientes', title: 'Solicitudes Pendientes' },
+      'estadisticas': { id: 'tabEstadisticas', title: 'Reportes y Estadísticas' }
+    };
 
+    const target = tabMap[tab];
+    document.getElementById(target.id).classList.add('active');
+    document.getElementById('activeTabTitle').textContent = target.title;
+
+    // Load data
     if (tab === 'hoy') this.cargarAgendaHoy();
     if (tab === 'todas') this.cargarTodasReservas();
     if (tab === 'pendientes') this.cargarReservasPendientes();
+  },
+
+  aplicarFiltros() {
+    const filtros = {
+      fecha: document.getElementById('filtroFechaInicio').value,
+      estado: document.getElementById('filtroEstado').value
+    };
+    // Implementación simplificada para el demo de filtros
+    this.cargarTodasReservas();
+  },
+
+  cerrarSesion() {
+    if (confirm('¿Cerrar sesión?')) {
+      document.getElementById('dashboard').classList.remove('active');
+      document.getElementById('loginContainer').style.display = 'flex';
+      document.getElementById('password').value = '';
+    }
   }
 };
 

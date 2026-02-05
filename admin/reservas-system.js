@@ -197,6 +197,31 @@ const SistemaReservas = {
       totalClientes: data.clientes.length,
       reservasHoy: data.reservas.filter(r => r.fecha === hoy).length
     };
+  },
+
+  generarMensajeWhatsApp(reserva) {
+    const fechaFmt = new Date(reserva.fecha + 'T00:00:00').toLocaleDateString('es-AR', {
+      weekday: 'long', day: 'numeric', month: 'long'
+    });
+    return encodeURIComponent(`*BARBERÍA PREMIUM - NUEVA RESERVA*\n\nHola *${reserva.nombre}*, confirmamos los detalles de tu turno:\n\n📅 *Fecha:* ${fechaFmt}\n🕐 *Hora:* ${reserva.horario} hs\n✂️ *Servicio:* ${reserva.servicio}\n👤 *Barbero:* ${reserva.barbero}\n\n_¡Te esperamos en Av. Corrientes 1234!_`);
+  },
+
+  obtenerReservasCliente(telefono) {
+    const data = this.gestor.db.getData();
+    return data.reservas.filter(r => r.telefono === telefono);
+  },
+
+  cancelarReserva(id, telefono, motivo) {
+    const data = this.gestor.db.getData();
+    const index = data.reservas.findIndex(r => r.id === id && r.telefono === telefono);
+    if (index !== -1) {
+      data.reservas[index].estado = 'cancelada';
+      data.reservas[index].motivoCancelacion = motivo;
+      data.estadisticas.reservasCanceladas++;
+      this.gestor.db.saveData(data);
+      return { exito: true };
+    }
+    return { exito: false, error: 'Reserva no encontrada o datos incorrectos' };
   }
 };
 

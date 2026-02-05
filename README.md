@@ -12,23 +12,6 @@ Sitio web moderno desarrollado para una barbería que combina estética clásica
 
 El sistema permite una gestión integral desde la solicitud del cliente hasta la confirmación del barbero.
 
-```mermaid
-sequenceDiagram
-    participant C as Cliente (Web)
-    participant S as Sistema (Data)
-    participant A as Admin (Barbería)
-    participant W as WhatsApp
-
-    C->>C: Selecciona servicio y barbero
-    C->>C: Completa datos y reserva
-    C->>S: Se registra reserva (Estado: Pendiente)
-    S->>A: Notificación sonora + Visual (Real-time alert)
-    A->>A: Revisa solicitud en el Panel
-    A->>S: Cambia estado a "Confirmada"
-    A->>W: Se abre WhatsApp para confirmar al Cliente
-    S->>A: Se actualiza contador de "Confirmadas"
-```
-
 ### Proceso de Reserva:
 1. **Cliente**: Reserva desde la web. Ve un mensaje de confirmación en pantalla informando que su turno está pendiente.
 2. **Admin**: Recibe una alerta sonora y visual en tiempo real en el panel de gestión.

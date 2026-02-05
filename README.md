@@ -1,87 +1,62 @@
-# 💈 Barbería Premium - Sitio Web
+# 💈 Barbería - Sitio Web
 
-Sitio web profesional y responsive para barbería con diseño elegante y sistema de reservas integrado con WhatsApp.
+Sitio web profesional y responsive para barbería con diseño elegante y sistema de reservas inteligente.
 
 🔗 **[Ver sitio en vivo](https://landing-barberia.netlify.app/)**
 
 ## Descripción
 
-Sitio web moderno desarrollado para una barbería que combina estética clásica con funcionalidad contemporánea. Diseñado para ofrecer una experiencia premium tanto en desktop como en dispositivos móviles, con animaciones suaves y navegación intuitiva.
+Sitio web moderno desarrollado para una barbería que combina estética clásica con funcionalidad contemporánea. Diseñado para ofrecer una experiencia de alta calidad tanto en desktop como en dispositivos móviles, con animaciones suaves y un panel de administración profesional.
+
+## Arquitectura y Flujo de Reservas
+
+El sistema permite una gestión integral desde la solicitud del cliente hasta la confirmación del barbero.
+
+```mermaid
+sequenceDiagram
+    participant C as Cliente (Web)
+    participant S as Sistema (Data)
+    participant A as Admin (Barbería)
+    participant W as WhatsApp
+
+    C->>C: Selecciona servicio y barbero
+    C->>C: Completa datos y reserva
+    C->>S: Se registra reserva (Estado: Pendiente)
+    S->>A: Notificación sonora + Visual (Real-time alert)
+    A->>A: Revisa solicitud en el Panel
+    A->>S: Cambia estado a "Confirmada"
+    A->>W: Se abre WhatsApp para confirmar al Cliente
+    S->>A: Se actualiza contador de "Confirmadas"
+```
+
+### Proceso de Reserva:
+1. **Cliente**: Reserva desde la web. Ve un mensaje de confirmación en pantalla informando que su turno está pendiente.
+2. **Admin**: Recibe una alerta sonora y visual en tiempo real en el panel de gestión.
+3. **Gestión**: El administrador confirma el turno desde el panel, lo que dispara automáticamente la opción de enviar la confirmación oficial por WhatsApp al número del cliente.
 
 ## Características
 
-- **Diseño responsive** adaptado a todos los dispositivos
-- **Sección Hero** con estadísticas animadas y llamados a la acción
-- **Catálogo de servicios** con precios y descripciones detalladas
-- **Galería fotográfica** para mostrar trabajos realizados
-- **Testimonios de clientes** con carrusel automático
-- **Sistema de reservas** que genera mensajes pre-formateados para WhatsApp
-- **Sección "Nosotros"** para contar la historia de la barbería
-- **Información de contacto** con mapa integrado de Google Maps
-- **Botón flotante de WhatsApp** para contacto rápido
-- **Navegación suave** entre secciones
-- **Animaciones al scroll** para mejorar la experiencia visual
-- **Menú hamburguesa** optimizado para móviles
+- **Panel de Administración** en tiempo real con estadísticas y alertas.
+- **Notificaciones automáticas** vía WhatsApp para reservas y confirmaciones.
+- **Diseño responsive** adaptado a todos los dispositivos.
+- **Cálculo de disponibilidad** automático según servicios y barberos.
+- **Temas visuales** premium con estética dark y acentos dorados.
 
 ## Tecnologías utilizadas
 
-- **HTML5** - Estructura semántica
-- **CSS3** - Estilos modernos con CSS Grid y Flexbox
-- **JavaScript (Vanilla)** - Funcionalidad sin dependencias
-- **Font Awesome** - Iconografía
-- **Google Fonts** - Tipografías Cinzel y Cormorant Garamond
-- **Google Maps API** - Mapa de ubicación
+- **HTML5**, **CSS3** (Vanilla) y **JavaScript** (Vanilla).
+- **LocalStorage**: Simulación de base de datos para persistencia de datos.
+- **Mermaid.js**: Para diagramas de procesos.
+- **Font Awesome** y **Google Fonts**.
 
-## Estructura
+## Estructura del Proyecto
 
-El sitio está compuesto por las siguientes secciones:
-
-1. **Header/Navegación** - Menú sticky con logo y enlaces
-2. **Hero** - Presentación principal con título, subtítulo y estadísticas
-3. **Servicios** - Cards con los diferentes servicios ofrecidos
-4. **Galería** - Grid de imágenes de trabajos realizados
-5. **Nosotros** - Historia y valores de la barbería
-6. **Testimonios** - Reseñas de clientes satisfechos
-7. **Contacto** - Información de ubicación, horarios y formulario de reserva
-8. **Footer** - Links y redes sociales
-
-## Funcionalidades destacadas
-
-### Sistema de Reservas
-Modal interactivo que permite seleccionar servicio, fecha y horario. Al enviar, genera automáticamente un mensaje de WhatsApp con todos los datos.
-
-### Animaciones
-- Fade-in de elementos al hacer scroll
-- Contador animado en estadísticas
-- Transiciones suaves en hover
-- Progress bar de lectura
-
-### Optimizaciones móviles
-- Menú auto-hide al hacer scroll
-- Touch gestures en carrusel
-- Viewport heights dinámicos
-- Botones con tamaño táctil adecuado
-
-## Diseño
-
-Paleta de colores elegante con tonos oscuros y acentos dorados que transmiten sofisticación y clase. Tipografías serif clásicas que refuerzan la identidad premium de la marca.
-
-**Colores principales:**
-- Negro profundo (#0a0a0a)
-- Dorado (#d4af37)
-- Blanco/Crema (#f8f5f0)
-
-**Tipografías:**
-- Cinzel - Títulos y encabezados
-- Cormorant Garamond - Textos y párrafos
-
-## Compatibilidad
-
-- Chrome/Edge (últimas versiones)
-- Firefox (últimas versiones)
-- Safari (iOS y macOS)
-- Responsive desde 320px hasta 4K
+- `index.html`: Web pública para clientes.
+- `script.js`: Lógica de interacción del cliente.
+- `admin/admin.html`: Panel de control para el barbero.
+- `admin/admin-ui.js`: Lógica del dashboard y alertas.
+- `admin/reservas-system.js`: Núcleo unificado de datos y reglas de negocio.
 
 ---
 
-Desarrollado como proyecto personal de sitio web para barbería.
+Desarrollado para ofrecer una solución completa de gestión y presencia digital para barberías.

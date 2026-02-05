@@ -7,6 +7,7 @@ const AdminUI = {
     this.setupEventListeners();
     this.actualizarFechaActual();
     this.configurarFechasFiltro();
+    this.initNotifications();
   },
 
   setupEventListeners() {
@@ -183,6 +184,7 @@ const AdminUI = {
       return `
         <button class="btn-icon btn-icon-check" title="Completar" onclick="AdminUI.cambiarEstado('${r.id}', 'completada')"><i class="fas fa-check-double"></i></button>
         <button class="btn-icon btn-icon-times" title="Cancelar" onclick="AdminUI.cambiarEstado('${r.id}', 'cancelada')"><i class="fas fa-times"></i></button>
+        <button class="btn-icon" style="background: rgba(37, 211, 102, 0.1); color: #25d366;" title="Enviar Confirmación WhatsApp" onclick="AdminUI.enviarConfirmacionWhatsApp('${r.id}')"><i class="fab fa-whatsapp"></i></button>
       `;
     }
     return '<small style="color: #444;">Finalizada</small>';
@@ -192,6 +194,15 @@ const AdminUI = {
     if (confirm(`¿Cambiar estado a ${nuevoEstado}?`)) {
       SistemaReservas.actualizarEstado(id, nuevoEstado);
       this.cargarDashboard();
+
+      // Automatización: Notificar al cliente al confirmar
+      if (nuevoEstado === 'confirmada') {
+        setTimeout(() => {
+          if (confirm('✅ Reserva confirmada. ¿Deseas enviar la notificación oficial por WhatsApp al cliente ahora?')) {
+            this.enviarConfirmacionWhatsApp(id);
+          }
+        }, 300);
+      }
     }
   },
 
@@ -234,6 +245,65 @@ const AdminUI = {
       document.getElementById('loginContainer').style.display = 'flex';
       document.getElementById('password').value = '';
     }
+  },
+
+  initNotifications() {
+    // Escuchar cambios en localStorage (para detectar reservas nuevas desde la web pública)
+    window.addEventListener('storage', (e) => {
+      if (e.key === 'barberia_reservas') {
+        const newData = JSON.parse(e.newValue);
+        const oldData = JSON.parse(e.oldValue);
+
+        // Si hay más reservas que antes, notificar
+        if (newData.reservas.length > oldData.reservas.length) {
+          const nuevaReserva = newData.reservas[newData.reservas.length - 1];
+          this.mostrarNotificacionNuevaReserva(nuevaReserva);
+          this.cargarDashboard(); // Recargar datos
+        }
+      }
+    });
+
+    // Pedir permiso para notificaciones si el usuario interactúa (opcional)
+    document.addEventListener('click', () => {
+      const audio = document.getElementById('notificationSound');
+      if (audio) audio.load(); // Preparar audio
+    }, { once: true });
+  },
+
+  mostrarNotificacionNuevaReserva(reserva) {
+    // Sonido
+    const audio = document.getElementById('notificationSound');
+    if (audio) {
+      audio.currentTime = 0;
+      audio.play().catch(e => console.log("Audio play blocked by browser"));
+    }
+
+    // Visual Alert (Toast)
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.innerHTML = `
+      <i class="fas fa-bell"></i>
+      <div class="toast-content">
+        <div class="toast-title">NUEVA RESERVA</div>
+        <div class="toast-msg"><strong>${reserva.nombre}</strong> - ${reserva.servicio} (${reserva.horario})</div>
+      </div>
+    `;
+
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.style.animation = 'fadeOut 0.5s forwards';
+      setTimeout(() => toast.remove(), 500);
+    }, 5000);
+  },
+
+  enviarConfirmacionWhatsApp(id) {
+    const reserva = SistemaReservas.obtenerReservas().find(r => r.id === id);
+    if (!reserva) return;
+
+    const mensaje = SistemaReservas.generarMensajeConfirmacionCliente(reserva);
+    const url = `https://wa.me/${reserva.telefono.replace(/\D/g, '')}?text=${mensaje}`;
+    window.open(url, '_blank');
   }
 };
 

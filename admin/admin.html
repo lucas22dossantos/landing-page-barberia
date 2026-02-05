@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Panel Admin - Barbería Premium</title>
+  <title>Panel Admin - Barbería</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
@@ -254,7 +254,47 @@
       display: block;
     }
 
-    /* Tabs Content */
+    /* Toast Notifications */
+    .toast-container {
+      position: fixed;
+      top: 85px;
+      right: 2.5rem;
+      z-index: 3000;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: var(--color-bg-card);
+      border: 1px solid var(--color-gold);
+      border-radius: 12px;
+      padding: 1.25rem 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      min-width: 320px;
+      animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+      pointer-events: auto;
+      border-left: 5px solid var(--color-gold);
+    }
+
+    .toast i { font-size: 1.25rem; color: var(--color-gold); }
+    .toast-content { flex: 1; }
+    .toast-title { font-weight: 700; color: #fff; margin-bottom: 0.2rem; }
+    .toast-msg { font-size: 0.85rem; color: var(--color-text-dim); }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(50px) scale(0.9); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(20px); }
+    }
+
     .tab-content { display: none; }
     .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
 
@@ -280,7 +320,7 @@
   <div id="loginContainer" class="login-container">
     <div class="login-box">
       <h1><i class="fas fa-cut"></i> ADMIN</h1>
-      <p>Barbería Premium Management</p>
+      <p>Barbería Management</p>
       
       <div id="loginError" class="error-message"></div>
       
@@ -431,6 +471,12 @@
       </main>
     </div>
   </div>
+
+  <!-- Toast Area -->
+  <div id="toastContainer" class="toast-container"></div>
+  
+  <!-- Audio for notifications -->
+  <audio id="notificationSound" src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3" preload="auto"></audio>
 
   <script src="reservas-system.js"></script>
   <script src="admin-ui.js"></script>

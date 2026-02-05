@@ -2,7 +2,7 @@
 
 // ===== CONFIGURATION =====
 const CONFIG = {
-  whatsappNumber: '5491123456789', // Cambia este número
+  whatsappNumber: '5493765371474', // Cambia este número
   animationOffset: 100,
   scrollThreshold: 50,
   testimonialInterval: 5000,
@@ -677,17 +677,10 @@ const reservaModal = {
 
       window.lastBookingData = data;
 
-      // Automatic WhatsApp Notification
-      const whatsappMsg = SistemaReservas.generarMensajeWhatsApp({ ...data, id: response.bookingId });
-      const whatsappUrl = `https://wa.me/${RESERVAS_CONFIG.whatsappNumber}?text=${whatsappMsg}`;
-
       // Mostrar confirmación en el modal de éxito
+      // Nota: Ya no se abre WhatsApp automáticamente para evitar confusiones al cliente.
+      // El barbero recibirá la alerta en el panel y confirmará desde allí.
       this.showConfirmation(data, response.bookingId);
-
-      // Abrir WhatsApp automáticamente después de un pequeño delay
-      setTimeout(() => {
-        window.open(whatsappUrl, '_blank');
-      }, 1500);
     });
   },
 
@@ -729,18 +722,18 @@ window.confirmBookingWhatsApp = () => {
   const data = window.lastBookingData;
   if (!data) return;
 
-  const mensaje = `
-*CONFIRMACIÓN DE TURNO*
-Hola! He reservado vía web y quiero confirmar los detalles:
-
-*Nombre:* ${data.nombre}
-*Barbero:* ${data.barbero}
-*Servicio:* ${data.servicio}
-*Fecha:* ${utils.formatDate(data.fecha)}
-*Horario:* ${data.horario} hs
-
-_¡Nos vemos pronto!_
-  `.trim();
+  const mensaje = [
+    "*CONFIRMACIÓN DE TURNO*",
+    "Hola! He reservado vía web y quiero confirmar los detalles:",
+    "",
+    `*Nombre:* ${data.nombre}`,
+    `*Barbero:* ${data.barbero}`,
+    `*Servicio:* ${data.servicio}`,
+    `*Fecha:* ${utils.formatDate(data.fecha)}`,
+    `*Horario:* ${data.horario} hs`,
+    "",
+    "_¡Nos vemos pronto!_"
+  ].join('\n');
 
   const url = `https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(mensaje)}`;
   window.open(url, '_blank');

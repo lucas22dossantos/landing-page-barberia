@@ -2,7 +2,7 @@
 // Simula una base de datos usando localStorage para persistencia real entre vistas.
 
 const RESERVAS_CONFIG = {
-  whatsappNumber: '5491123456789',
+  whatsappNumber: '5493765371474',
   diasAdelante: 30,
   barbers: [
     { id: 1, name: 'Juan', shift: { start: 9, end: 17 }, label: 'Juan (Mañana)' },
@@ -203,7 +203,43 @@ const SistemaReservas = {
     const fechaFmt = new Date(reserva.fecha + 'T00:00:00').toLocaleDateString('es-AR', {
       weekday: 'long', day: 'numeric', month: 'long'
     });
-    return encodeURIComponent(`*BARBERÍA PREMIUM - NUEVA RESERVA*\n\nHola *${reserva.nombre}*, confirmamos los detalles de tu turno:\n\n📅 *Fecha:* ${fechaFmt}\n🕐 *Hora:* ${reserva.horario} hs\n✂️ *Servicio:* ${reserva.servicio}\n👤 *Barbero:* ${reserva.barbero}\n\n_¡Te esperamos en Av. Corrientes 1234!_`);
+    // Uso de formatos de texto más compatibles (negritas y guiones) para evitar fallos de renderizado
+    const mensaje = [
+      "*NOTIFICACIÓN DE TURNO*",
+      "",
+      `Hola *${reserva.nombre}*, confirmamos los detalles de tu turno:`,
+      "",
+      `*Fecha:* ${fechaFmt}`,
+      `*Hora:* ${reserva.horario} hs`,
+      `*Servicio:* ${reserva.servicio}`,
+      `*Barbero:* ${reserva.barbero}`,
+      "",
+      "_¡Te esperamos en Av. Corrientes 1234!_"
+    ].join('\n');
+
+    return encodeURIComponent(mensaje);
+  },
+
+  generarMensajeConfirmacionCliente(reserva) {
+    const fechaFmt = new Date(reserva.fecha + 'T00:00:00').toLocaleDateString('es-AR', {
+      weekday: 'long', day: 'numeric', month: 'long'
+    });
+    const mensaje = [
+      "*BARBERÍA*",
+      "",
+      `¡Hola *${reserva.nombre}*! Tu turno ha sido *CONFIRMADO* con éxito.`,
+      "",
+      `*Fecha:* ${fechaFmt}`,
+      `*Hora:* ${reserva.horario} hs`,
+      `*Servicio:* ${reserva.servicio}`,
+      `*Barbero:* ${reserva.barbero}`,
+      "",
+      "_📍 Dirección: Av. Corrientes 1234, CABA._",
+      "",
+      "_Por favor, llega 5 minutos antes. ¡Te esperamos!_"
+    ].join('\n');
+
+    return encodeURIComponent(mensaje);
   },
 
   obtenerReservasCliente(telefono) {

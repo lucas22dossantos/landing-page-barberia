@@ -234,12 +234,25 @@
     .client-phone { font-size: 0.85rem; color: var(--color-text-dim); margin-top: 0.2rem; }
     .client-note { max-width: 200px; font-size: 0.85rem; color: var(--color-text-dim); font-style: italic; }
 
-    .action-btns { display: flex; gap: 0.75rem; }
+    .action-btns, .action-buttons { display: flex; gap: 0.75rem; }
     .btn-icon { width: 36px; height: 36px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
     .btn-icon-check { background: rgba(48, 209, 88, 0.1); color: #30d158; }
     .btn-icon-check:hover { background: #30d158; color: #fff; }
     .btn-icon-times { background: rgba(255, 69, 58, 0.1); color: #ff453a; }
     .btn-icon-times:hover { background: #ff453a; color: #fff; }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 5rem 2rem;
+      color: var(--color-text-dim);
+    }
+    .empty-state i {
+      font-size: 3.5rem;
+      margin-bottom: 1.5rem;
+      color: #222;
+      display: block;
+    }
 
     /* Tabs Content */
     .tab-content { display: none; }

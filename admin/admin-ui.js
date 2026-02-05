@@ -54,6 +54,7 @@ const AdminUI = {
     this.cargarAgendaHoy();
     this.cargarTodasReservas();
     this.cargarReservasPendientes();
+    console.log("Dashboard cargado");
   },
 
   cargarEstadisticas() {
@@ -231,12 +232,25 @@ const AdminUI = {
   },
 
   aplicarFiltros() {
-    const filtros = {
-      fecha: document.getElementById('filtroFechaInicio').value,
-      estado: document.getElementById('filtroEstado').value
-    };
-    // Implementación simplificada para el demo de filtros
-    this.cargarTodasReservas();
+    const fechaInicio = document.getElementById('filtroFechaInicio').value;
+    const fechaFin = document.getElementById('filtroFechaFin').value;
+    const estado = document.getElementById('filtroEstado').value;
+
+    const reservas = SistemaReservas.obtenerReservas();
+    const filtradas = reservas.filter(r => {
+      const matchEstado = !estado || r.estado === estado;
+      const matchFecha = (!fechaInicio || r.fecha >= fechaInicio) &&
+        (!fechaFin || r.fecha <= fechaFin);
+      return matchEstado && matchFecha;
+    });
+
+    this.renderizarTabla('todasReservas', filtradas, 'No se encontraron reservas con esos filtros');
+
+    // Feedback visual
+    const btn = event.target;
+    const originalText = btn.textContent;
+    btn.textContent = 'FILTRADO ✅';
+    setTimeout(() => btn.textContent = originalText, 2000);
   },
 
   cerrarSesion() {

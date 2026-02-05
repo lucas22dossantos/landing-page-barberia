@@ -135,7 +135,7 @@
 
     .nav-menu { flex: 1; }
     .nav-item {
-      padding: 1rem 2rem;
+      padding: 0.85rem 1.5rem;
       display: flex;
       align-items: center;
       gap: 1rem;
@@ -180,7 +180,7 @@
     .page-title { font-size: 1.25rem; font-weight: 600; color: #fff; }
     .nav-right { display: flex; align-items: center; gap: 2rem; color: var(--color-text-dim); font-size: 0.9rem; }
 
-    .content-container { padding: 2.5rem; max-width: 1400px; margin: 0 auto; width: 100%; }
+    .content-container { padding: 2rem; width: 100%; box-sizing: border-box; }
 
     /* Stats Grid */
     .stats-grid {
@@ -217,8 +217,8 @@
 
     .table-container { overflow-x: auto; }
     table { width: 100%; border-collapse: collapse; }
-    th { padding: 1.25rem 2rem; text-align: left; color: var(--color-gold); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1.5px; border-bottom: 1px solid #222; }
-    td { padding: 1.25rem 2rem; color: #fff; font-size: 0.95rem; border-bottom: 1px solid #1a1a1a; vertical-align: middle; }
+    th { padding: 1rem 1.25rem; text-align: left; color: var(--color-gold); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #222; white-space: nowrap; }
+    td { padding: 1rem 1.25rem; color: #fff; font-size: 0.9rem; border-bottom: 1px solid #1a1a1a; vertical-align: middle; }
     tr:hover { background: rgba(255, 255, 255, 0.02); }
 
     /* Badges */
@@ -232,7 +232,7 @@
     .client-info { display: flex; flex-direction: column; }
     .client-name { font-weight: 600; color: #fff; }
     .client-phone { font-size: 0.85rem; color: var(--color-text-dim); margin-top: 0.2rem; }
-    .client-note { max-width: 200px; font-size: 0.85rem; color: var(--color-text-dim); font-style: italic; }
+    .client-note { max-width: 250px; font-size: 0.85rem; color: var(--color-text-dim); font-style: italic; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
     .action-btns, .action-buttons { display: flex; gap: 0.75rem; }
     .btn-icon { width: 36px; height: 36px; border-radius: 8px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: var(--transition); }
